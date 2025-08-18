@@ -104,8 +104,8 @@ export default function Navbar() {
           isScrolled
             ? `${
                 isDarkMode
-                  ? "bg-gray-900/90 border-gray-700/30 shadow-2xl shadow-purple-500/10"
-                  : "bg-white/80 border-white/20 shadow-2xl shadow-purple-500/5"
+                  ? "bg-gray-900/90 border-gray-700/30 shadow-2xl shadow-blue-500/10"
+                  : "bg-white/80 border-white/20 shadow-2xl shadow-blue-500/5"
               } backdrop-blur-2xl`
             : `${
                 isDarkMode
@@ -118,8 +118,8 @@ export default function Navbar() {
         <div
           className={`absolute inset-0 transition-opacity duration-500 ${
             isDarkMode
-              ? "bg-gradient-to-r from-gray-900/80 via-gray-800/80 to-purple-900/80 opacity-70"
-              : "bg-gradient-to-r from-purple-50/80 via-white/80 to-pink-50/80 opacity-60"
+              ? "bg-gradient-to-r from-gray-900/80 via-gray-800/80 to-blue-900/80 opacity-70"
+              : "bg-gradient-to-r from-blue-50/80 via-white/80 to-cyan-50/80 opacity-60"
           }`}
         ></div>
 
@@ -127,19 +127,19 @@ export default function Navbar() {
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className={`absolute top-4 left-1/4 w-2 h-2 rounded-full animate-pulse ${
-              isDarkMode ? "bg-purple-400/30" : "bg-purple-400/40"
+              isDarkMode ? "bg-blue-400/30" : "bg-blue-400/40"
             }`}
             style={{ animationDelay: "0s", animationDuration: "3s" }}
           ></div>
           <div
             className={`absolute top-8 right-1/3 w-1 h-1 rounded-full animate-pulse ${
-              isDarkMode ? "bg-pink-400/30" : "bg-pink-400/40"
+              isDarkMode ? "bg-cyan-400/30" : "bg-cyan-400/40"
             }`}
             style={{ animationDelay: "1s", animationDuration: "4s" }}
           ></div>
           <div
             className={`absolute bottom-4 left-1/3 w-1.5 h-1.5 rounded-full animate-pulse ${
-              isDarkMode ? "bg-blue-400/30" : "bg-blue-400/40"
+              isDarkMode ? "bg-sky-400/30" : "bg-sky-400/40"
             }`}
             style={{ animationDelay: "2s", animationDuration: "5s" }}
           ></div>
@@ -151,8 +151,8 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <div className="relative group">
                 <div
-                  className={`w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 ${
-                    isScrolled ? "shadow-purple-500/30" : ""
+                  className={`w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 ${
+                    isScrolled ? "shadow-blue-500/30" : ""
                   }`}
                 >
                   <Bookmark className="w-6 h-6 text-white transition-transform duration-300 group-hover:scale-110" />
@@ -161,11 +161,11 @@ export default function Navbar() {
                   <Sparkles className="w-2 h-2 text-white animate-pulse" />
                 </div>
                 {/* Glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl opacity-20 blur-md group-hover:opacity-40 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl opacity-20 blur-md group-hover:opacity-40 transition-opacity duration-300"></div>
               </div>
               <div className="hidden md:block">
                 <h1
-                  className={`text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent transition-all duration-300 hover:from-purple-700 hover:to-pink-700`}
+                  className={`text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent transition-all duration-300 hover:from-blue-700 hover:to-cyan-700`}
                 >
                   Bookmark Manager
                 </h1>
@@ -193,7 +193,7 @@ export default function Navbar() {
                       href="/"
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-500 ease-in-out transform hover:scale-105 ${
                         pathname === "/"
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105"
+                          ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg scale-105"
                           : `${
                               isDarkMode
                                 ? "text-gray-300 hover:bg-gray-700/80"
@@ -209,7 +209,7 @@ export default function Navbar() {
                       href="/bookmarks"
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-500 ease-in-out transform hover:scale-105 ${
                         pathname === "/bookmarks"
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105"
+                          ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg scale-105"
                           : `${
                               isDarkMode
                                 ? "text-gray-300 hover:bg-gray-700/80"
@@ -261,10 +261,10 @@ export default function Navbar() {
                             user.photoURL ||
                             `https://ui-avatars.com/api/?name=${encodeURIComponent(
                               user.displayName || "User"
-                            )}&background=6366f1&color=fff&size=40`
+                            )}&background=3b82f6&color=fff&size=40`
                           }
                           alt="Profile"
-                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-md transition-all duration-300 group-hover:ring-purple-500"
+                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-md transition-all duration-300 group-hover:ring-blue-500"
                         />
                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                       </div>
@@ -272,8 +272,8 @@ export default function Navbar() {
                         <p
                           className={`font-medium transition-colors duration-300 ${
                             isDarkMode
-                              ? "text-gray-200 group-hover:text-purple-400"
-                              : "text-gray-800 group-hover:text-purple-600"
+                              ? "text-gray-200 group-hover:text-blue-400"
+                              : "text-gray-800 group-hover:text-blue-600"
                           }`}
                         >
                           {user.displayName}
@@ -313,12 +313,12 @@ export default function Navbar() {
                                   user.photoURL ||
                                   `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                     user.displayName || "User"
-                                  )}&background=6366f1&color=fff&size=60`
+                                  )}&background=3b82f6&color=fff&size=60`
                                 }
                                 alt="Profile"
-                                className="w-16 h-16 rounded-2xl object-cover ring-4 ring-purple-500/20 shadow-lg"
+                                className="w-16 h-16 rounded-2xl object-cover ring-4 ring-blue-500/20 shadow-lg"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl"></div>
+                              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl"></div>
                             </div>
                             <div>
                               <h3
@@ -355,11 +355,11 @@ export default function Navbar() {
                             <div
                               className={`text-center p-3 rounded-2xl transition-all duration-300 hover:scale-105 ${
                                 isDarkMode
-                                  ? "bg-gradient-to-br from-purple-900/50 to-pink-900/50"
-                                  : "bg-gradient-to-br from-purple-50 to-pink-50"
+                                  ? "bg-gradient-to-br from-blue-900/50 to-cyan-900/50"
+                                  : "bg-gradient-to-br from-blue-50 to-cyan-50"
                               }`}
                             >
-                              <div className="text-2xl font-bold text-purple-600 animate-pulse">
+                              <div className="text-2xl font-bold text-blue-600 animate-pulse">
                                 {bookmarkCount}
                               </div>
                               <div
@@ -373,11 +373,11 @@ export default function Navbar() {
                             <div
                               className={`text-center p-3 rounded-2xl transition-all duration-300 hover:scale-105 ${
                                 isDarkMode
-                                  ? "bg-gradient-to-br from-blue-900/50 to-cyan-900/50"
-                                  : "bg-gradient-to-br from-blue-50 to-cyan-50"
+                                  ? "bg-gradient-to-br from-sky-900/50 to-indigo-900/50"
+                                  : "bg-gradient-to-br from-sky-50 to-indigo-50"
                               }`}
                             >
-                              <div className="text-2xl font-bold text-blue-600 animate-pulse">
+                              <div className="text-2xl font-bold text-sky-600 animate-pulse">
                                 {folderCount}
                               </div>
                               <div
@@ -493,7 +493,7 @@ export default function Navbar() {
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
                     <Bookmark className="w-4 h-4 text-white" />
                   </div>
                   <span
@@ -522,8 +522,8 @@ export default function Navbar() {
                   <div
                     className={`rounded-3xl p-6 mb-6 ${
                       isDarkMode
-                        ? "bg-gradient-to-br from-purple-900/50 to-pink-900/50"
-                        : "bg-gradient-to-br from-purple-50 to-pink-50"
+                        ? "bg-gradient-to-br from-blue-900/50 to-cyan-900/50"
+                        : "bg-gradient-to-br from-blue-50 to-cyan-50"
                     }`}
                   >
                     <div className="flex items-center gap-4">
@@ -534,7 +534,7 @@ export default function Navbar() {
                           user.photoURL ||
                           `https://ui-avatars.com/api/?name=${encodeURIComponent(
                             user.displayName || "User"
-                          )}&background=6366f1&color=fff&size=60`
+                          )}&background=3b82f6&color=fff&size=60`
                         }
                         alt="Profile"
                         className="w-16 h-16 rounded-2xl object-cover ring-4 ring-white shadow-lg"
@@ -580,7 +580,7 @@ export default function Navbar() {
                     </Link>
                     <Link
                       href="/bookmarks"
-                      className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300"
+                      className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Bookmark className="w-5 h-5" />
@@ -611,11 +611,11 @@ export default function Navbar() {
                     <div
                       className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-4 ${
                         isDarkMode
-                          ? "bg-gradient-to-br from-purple-900/50 to-pink-900/50"
-                          : "bg-gradient-to-br from-purple-100 to-pink-100"
+                          ? "bg-gradient-to-br from-blue-900/50 to-cyan-900/50"
+                          : "bg-gradient-to-br from-blue-100 to-cyan-100"
                       }`}
                     >
-                      <User className="w-10 h-10 text-purple-500" />
+                      <User className="w-10 h-10 text-blue-500" />
                     </div>
                     <h3
                       className={`text-xl font-bold mb-2 ${
@@ -675,10 +675,10 @@ export default function Navbar() {
         @keyframes glow {
           0%,
           100% {
-            box-shadow: 0 0 5px rgba(168, 85, 247, 0.3);
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
           }
           50% {
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
           }
         }
 

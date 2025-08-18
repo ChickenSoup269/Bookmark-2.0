@@ -41,25 +41,25 @@ export default function Home() {
       title: "Smart Organization",
       description:
         "AI-powered categorization và smart folders giúp tổ chức bookmark hiệu quả",
-      gradient: "from-purple-500 to-pink-500",
+      gradient: "from-blue-500 to-cyan-500",
     },
     {
       icon: <Search className="w-8 h-8" />,
       title: "Lightning Search",
       description: "Tìm kiếm instant với full-text search và smart suggestions",
-      gradient: "from-blue-500 to-cyan-500",
+      gradient: "from-sky-500 to-blue-500",
     },
     {
       icon: <Smartphone className="w-8 h-8" />,
       title: "Cross-Platform Sync",
       description: "Đồng bộ seamless trên mọi thiết bị với real-time updates",
-      gradient: "from-green-500 to-emerald-500",
+      gradient: "from-cyan-500 to-teal-500",
     },
     {
       icon: <Shield className="w-8 h-8" />,
       title: "Secure & Private",
       description: "End-to-end encryption và privacy-first design",
-      gradient: "from-orange-500 to-red-500",
+      gradient: "from-indigo-500 to-blue-500",
     },
   ]
 
@@ -133,16 +133,16 @@ export default function Home() {
     <div
       className={`min-h-screen transition-all duration-700 overflow-x-hidden relative ${
         isDarkMode
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white"
-          : "bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-900"
+          ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white"
+          : "bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 text-gray-900"
       }`}
     >
       {/* Animated cursor follower */}
       <div
         className={`fixed w-6 h-6 rounded-full pointer-events-none z-50 opacity-20 transition-all duration-700 ease-out ${
           isDarkMode
-            ? "bg-gradient-to-r from-purple-400 to-pink-400"
-            : "bg-gradient-to-r from-blue-500 to-purple-500"
+            ? "bg-gradient-to-r from-blue-400 to-cyan-400"
+            : "bg-gradient-to-r from-blue-500 to-sky-500"
         }`}
         style={{
           left: mousePosition.x - 12,
@@ -155,15 +155,15 @@ export default function Home() {
       <div className="absolute inset-0 overflow-hidden">
         {isDarkMode ? (
           <>
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse animation-delay-4000"></div>
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse animation-delay-4000"></div>
           </>
         ) : (
           <>
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse animation-delay-2000"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse animation-delay-2000"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
           </>
         )}
 
@@ -211,8 +211,8 @@ export default function Home() {
             <span
               className={`bg-gradient-to-r bg-clip-text text-transparent animate-pulse ${
                 isDarkMode
-                  ? "from-white via-purple-200 to-pink-200"
-                  : "from-gray-800 via-blue-600 to-purple-600"
+                  ? "from-white via-blue-200 to-cyan-200"
+                  : "from-gray-800 via-blue-600 to-sky-600"
               }`}
             >
               Bookmark
@@ -221,8 +221,8 @@ export default function Home() {
             <span
               className={`bg-gradient-to-r bg-clip-text text-transparent ${
                 isDarkMode
-                  ? "from-purple-400 via-pink-400 to-blue-400"
-                  : "from-blue-500 via-purple-500 to-pink-500"
+                  ? "from-blue-400 via-cyan-400 to-sky-400"
+                  : "from-blue-500 via-sky-500 to-cyan-500"
               }`}
             >
               Revolution
@@ -238,7 +238,7 @@ export default function Home() {
             Trải nghiệm quản lý bookmark{" "}
             <span
               className={`font-semibold ${
-                isDarkMode ? "text-purple-400" : "text-purple-600"
+                isDarkMode ? "text-blue-400" : "text-blue-600"
               }`}
             >
               hoàn toàn mới
@@ -249,7 +249,7 @@ export default function Home() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-            <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden text-white">
+            <button className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl font-bold text-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 overflow-hidden text-white">
               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative flex items-center gap-3">
                 <Rocket className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
@@ -282,7 +282,7 @@ export default function Home() {
           <button
             onClick={handleScroll}
             className={`animate-bounce hover:animate-none transition-all duration-300 cursor-pointer ${
-              isDarkMode ? "hover:text-purple-400" : "hover:text-purple-600"
+              isDarkMode ? "hover:text-blue-400" : "hover:text-blue-600"
             }`}
           >
             <ArrowDown className="w-8 h-8 mx-auto" />
@@ -309,13 +309,13 @@ export default function Home() {
                 <div
                   className={`w-16 h-16 backdrop-blur-xl rounded-2xl flex items-center justify-center mx-auto mb-4 border transition-all duration-300 ${
                     isDarkMode
-                      ? "bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-500/40 group-hover:to-pink-500/40 border-white/10"
-                      : "bg-gradient-to-br from-blue-100/60 to-purple-100/60 group-hover:from-blue-200/80 group-hover:to-purple-200/80 border-gray-200/30 shadow-lg"
+                      ? "bg-gradient-to-br from-blue-500/20 to-cyan-500/20 group-hover:from-blue-500/40 group-hover:to-cyan-500/40 border-white/10"
+                      : "bg-gradient-to-br from-blue-100/60 to-cyan-100/60 group-hover:from-blue-200/80 group-hover:to-cyan-200/80 border-gray-200/30 shadow-lg"
                   }`}
                 >
                   <div
                     className={`transition-transform duration-300 group-hover:scale-110 ${
-                      isDarkMode ? "text-purple-400" : "text-purple-600"
+                      isDarkMode ? "text-blue-400" : "text-blue-600"
                     }`}
                   >
                     {stat.icon}
@@ -324,8 +324,8 @@ export default function Home() {
                 <div
                   className={`text-3xl lg:text-4xl font-black mb-2 transition-colors duration-300 ${
                     isDarkMode
-                      ? "text-white group-hover:text-purple-400"
-                      : "text-gray-800 group-hover:text-purple-600"
+                      ? "text-white group-hover:text-blue-400"
+                      : "text-gray-800 group-hover:text-blue-600"
                   }`}
                 >
                   {stat.number}
@@ -351,8 +351,8 @@ export default function Home() {
               <span
                 className={`bg-gradient-to-r bg-clip-text text-transparent ${
                   isDarkMode
-                    ? "from-purple-400 to-pink-400"
-                    : "from-purple-600 to-pink-600"
+                    ? "from-blue-400 to-cyan-400"
+                    : "from-blue-600 to-cyan-600"
                 }`}
               >
                 Tính năng
@@ -481,8 +481,8 @@ export default function Home() {
               <span
                 className={`bg-gradient-to-r bg-clip-text text-transparent ${
                   isDarkMode
-                    ? "from-purple-400 to-pink-400"
-                    : "from-purple-600 to-pink-600"
+                    ? "from-blue-400 to-cyan-400"
+                    : "from-blue-600 to-cyan-600"
                 }`}
               >
                 yêu thích
@@ -517,7 +517,7 @@ export default function Home() {
                     className={`w-16 h-16 rounded-2xl object-cover ring-4 transition-all duration-300 ${
                       isDarkMode
                         ? "ring-white/20 group-hover:ring-white/40"
-                        : "ring-gray-200/50 group-hover:ring-purple-300/50"
+                        : "ring-gray-200/50 group-hover:ring-blue-300/50"
                     }`}
                   />
                   <div>
@@ -564,8 +564,8 @@ export default function Home() {
           <div
             className={`backdrop-blur-xl rounded-3xl p-12 border shadow-2xl transition-all duration-700 ${
               isDarkMode
-                ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-white/20"
-                : "bg-gradient-to-r from-purple-100/80 to-pink-100/80 border-white/40"
+                ? "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-white/20"
+                : "bg-gradient-to-r from-blue-100/80 to-cyan-100/80 border-white/40"
             }`}
           >
             <h2
@@ -585,7 +585,7 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button className="group px-10 py-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl font-bold text-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 text-white">
+              <button className="group px-10 py-5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl font-bold text-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 text-white">
                 <div className="flex items-center gap-3">
                   <Zap className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
                   Đăng nhập với Google
