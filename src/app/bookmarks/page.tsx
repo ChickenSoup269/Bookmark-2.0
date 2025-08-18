@@ -24,7 +24,6 @@ export default function Bookmarks() {
 
   return (
     <div className="group relative bg-white/70 backdrop-blur-lg rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-white/20 overflow-hidden">
-      <h1 className="text-2xl font-bold mb-4">Danh sách Bookmark</h1>
       <BookmarkForm
         onAdd={function (): void {
           throw new Error("Function not implemented.")

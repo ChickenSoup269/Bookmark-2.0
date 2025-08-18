@@ -20,6 +20,7 @@ import { addDoc, collection, query, onSnapshot } from "firebase/firestore"
 type Folder = {
   id: string
   title: string
+  color?: string // Thêm trường color cho folder
 }
 
 export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
@@ -58,6 +59,7 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
         const folderData = snapshot.docs.map((doc) => ({
           id: doc.id,
           title: doc.data().title || `Folder ${doc.id}`,
+          color: doc.data().color || "#6B7280", // Mặc định màu xám nếu không có
         }))
         setFolders(folderData)
       } catch (error) {
@@ -317,15 +319,24 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                   id="folder"
                   value={folderId}
                   onChange={(e) => setFolderId(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white/70 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700"
+                  className="w-full pl-12 pr-10 py-4 bg-white/70 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700 appearance-none"
                 >
                   <option value="">Chọn thư mục (mặc định: Other)</option>
                   {folders.map((folder) => (
-                    <option key={folder.id} value={folder.id}>
+                    <option
+                      key={folder.id}
+                      value={folder.id}
+                      className="flex items-center"
+                    >
+                      <span
+                        className="mr-2 w-4 h-4 rounded-full inline-block"
+                        style={{ backgroundColor: folder.color }}
+                      ></span>
                       {folder.title}
                     </option>
                   ))}
                 </select>
+                <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
               </div>
             </div>
 

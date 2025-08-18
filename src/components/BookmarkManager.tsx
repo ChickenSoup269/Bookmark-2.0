@@ -36,6 +36,7 @@ type Bookmark = {
   url?: string
   description?: string
   folderId?: string
+  tags?: string[]
   createdAt?: { toMillis: () => number }
   favorite?: boolean
   [key: string]: unknown
@@ -100,9 +101,10 @@ export default function BookmarkManager() {
       const folderData = snapshot.docs.map((doc) => ({
         id: doc.id,
         title: doc.data().title || `Folder ${doc.id}`,
-        color: doc.data().color || "#6B7280",
+        color: doc.data().color || "#6B7280", // Đảm bảo color luôn có giá trị
       }))
       setFolders(folderData)
+      console.log("Fetched folders:", folderData) // Debug: Kiểm tra dữ liệu folder
     })
 
     return () => {
@@ -245,23 +247,144 @@ export default function BookmarkManager() {
 
   const getFolderColor = (folderId: string) => {
     const folder = folders.find((f) => f.id === folderId)
-    return folder?.color
-      ? `from-[${folder.color}] to-[${folder.color}]`
-      : "from-gray-500 to-gray-600"
+    const color = folder?.color || "#6B7280"
+    // Tính độ sáng để chọn màu text tương phản
+    const luminance = (r: number, g: number, b: number) =>
+      0.299 * r + 0.587 * g + 0.114 * b
+    const hex = color.replace("#", "")
+    const r = parseInt(hex.substr(0, 2), 16)
+    const g = parseInt(hex.substr(2, 2), 16)
+    const b = parseInt(hex.substr(4, 2), 16)
+    const textColor = luminance(r, g, b) > 128 ? "#000000" : "#FFFFFF"
+    return { background: color, text: textColor }
   }
 
-  const BookmarkCard = ({ bookmark }: { bookmark: Bookmark }) => (
-    <div className="group relative bg-white/70 backdrop-blur-lg rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-white/20 overflow-hidden">
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-        <div
-          className={`absolute inset-0 bg-gradient-to-br ${getFolderColor(
-            bookmark.folderId || "Other"
-          )} opacity-5`}
-        ></div>
+  const BookmarkCard = ({ bookmark }: { bookmark: Bookmark }) => {
+    const folderColor = getFolderColor(bookmark.folderId || "Other")
+    return (
+      <div className="relative bg-white/70 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-white/20 overflow-hidden">
+        <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500">
+          <div
+            className="absolute inset-0 bg-gradient-to-br"
+            style={{
+              background: `linear-gradient(to bottom right, ${folderColor.background}, ${folderColor.background})`,
+            }}
+          ></div>
+        </div>
+        <div className="relative z-10">
+          {showCheckboxes && (
+            <div className="absolute -top-2 -right-2">
+              <input
+                type="checkbox"
+                checked={selectedBookmarks.includes(bookmark.id)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedBookmarks([...selectedBookmarks, bookmark.id])
+                  } else {
+                    setSelectedBookmarks(
+                      selectedBookmarks.filter((id) => id !== bookmark.id)
+                    )
+                  }
+                }}
+                className="w-5 h-5 rounded-full border-2 border-white bg-white/20 backdrop-blur-sm checked:bg-blue-500 transition-all duration-300"
+              />
+            </div>
+          )}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                {bookmark.favorite && (
+                  <Star className="w-4 h-4 text-yellow-500 fill-current animate-pulse" />
+                )}
+                <span
+                  className="text-xs font-medium px-2 py-1 rounded-full shadow-lg"
+                  style={{
+                    background: folderColor.background,
+                    color: folderColor.text,
+                  }}
+                >
+                  {folders.find((f) => f.id === bookmark.folderId)?.title ||
+                    "Other"}
+                </span>
+              </div>
+              <h3 className="font-semibold text-gray-800 hover:text-gray-900 transition-colors duration-300 line-clamp-2">
+                {bookmark.title}
+              </h3>
+            </div>
+            <button
+              onClick={() => toggleFavorite(bookmark.id)}
+              className="opacity-0 hover:opacity-100 transition-all duration-300 hover:scale-110 ml-2"
+            >
+              <Star
+                className={`w-5 h-5 transition-colors duration-300 ${
+                  bookmark.favorite
+                    ? "text-yellow-500 fill-current"
+                    : "text-gray-400"
+                }`}
+              />
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+            {bookmark.description}
+          </p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {bookmark.tags?.map((tag, index) => (
+              <span
+                key={index}
+                className="text-xs px-2 py-1 rounded-full shadow-md"
+                style={{
+                  background: folderColor.background,
+                  color: folderColor.text,
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center justify-between">
+            <a
+              href={bookmark.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors duration-300 group/link"
+            >
+              <span className="text-sm font-medium">Visit</span>
+              <ExternalLink className="w-4 h-4 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform duration-300" />
+            </a>
+            <div className="flex items-center gap-2 opacity-0 hover:opacity-100 transition-all duration-300">
+              <button
+                onClick={() => {
+                  setRenameBookmarkId(bookmark.id)
+                  setRenameValue(bookmark.title || "")
+                }}
+                className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+              >
+                <Edit3 className="w-4 h-4 text-gray-600" />
+              </button>
+              <button
+                onClick={() => setAddToFolderBookmarkId(bookmark.id)}
+                className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+              >
+                <Folder className="w-4 h-4 text-gray-600" />
+              </button>
+              <button
+                onClick={() => handleDeleteBookmark(bookmark.id)}
+                className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+              >
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="relative z-10">
-        {showCheckboxes && (
-          <div className="absolute -top-2 -right-2">
+    )
+  }
+  const BookmarkListItem = ({ bookmark }: { bookmark: Bookmark }) => {
+    const folderColor = getFolderColor(bookmark.folderId || "Other")
+    return (
+      <div className="relative bg-white/70 backdrop-blur-lg rounded-xl p-4 shadow-lg border border-white/20 hover:border-white/40">
+        <div className="flex items-center gap-4">
+          {showCheckboxes && (
             <input
               type="checkbox"
               checked={selectedBookmarks.includes(bookmark.id)}
@@ -274,163 +397,87 @@ export default function BookmarkManager() {
                   )
                 }
               }}
-              className="w-5 h-5 rounded-full border-2 border-white bg-white/20 backdrop-blur-sm checked:bg-blue-500 transition-all duration-300"
+              className="w-4 h-4 rounded border-2 border-gray-300 checked:bg-blue-500 transition-all duration-300"
             />
-          </div>
-        )}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
               {bookmark.favorite && (
-                <Star className="w-4 h-4 text-yellow-500 fill-current animate-pulse" />
+                <Star className="w-4 h-4 text-yellow-500 fill-current" />
               )}
+              <h3 className="font-medium text-gray-800 truncate">
+                {bookmark.title}
+              </h3>
               <span
-                className={`text-xs font-medium px-2 py-1 rounded-full bg-gradient-to-r ${getFolderColor(
-                  bookmark.folderId || "Other"
-                )} text-white shadow-lg`}
+                className="text-xs px-2 py-1 rounded-full"
+                style={{
+                  background: folderColor.background,
+                  color: folderColor.text,
+                }}
               >
                 {folders.find((f) => f.id === bookmark.folderId)?.title ||
                   "Other"}
               </span>
             </div>
-            <h3 className="font-semibold text-gray-800 group-hover:text-gray-900 transition-colors duration-300 line-clamp-2">
-              {bookmark.title}
-            </h3>
+            <p className="text-sm text-gray-600 truncate">
+              {bookmark.description}
+            </p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {bookmark.tags?.map((tag, index) => (
+                <span
+                  key={index}
+                  className="text-xs px-2 py-1 rounded-full shadow-md"
+                  style={{
+                    background: folderColor.background,
+                    color: folderColor.text,
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
-          <button
-            onClick={() => toggleFavorite(bookmark.id)}
-            className="opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 ml-2"
-          >
-            <Star
-              className={`w-5 h-5 transition-colors duration-300 ${
-                bookmark.favorite
-                  ? "text-yellow-500 fill-current"
-                  : "text-gray-400"
-              }`}
-            />
-          </button>
-        </div>
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {bookmark.description}
-        </p>
-        <div className="flex items-center justify-between">
-          <a
-            href={bookmark.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors duration-300 group/link"
-          >
-            <span className="text-sm font-medium">Visit</span>
-            <ExternalLink className="w-4 h-4 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform duration-300" />
-          </a>
-          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="flex items-center gap-2">
+            <a
+              href={bookmark.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors duration-300"
+            >
+              <ExternalLink className="w-4 h-4 text-blue-600" />
+            </a>
+            <button
+              onClick={() => toggleFavorite(bookmark.id)}
+              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
+            >
+              <Star
+                className={`w-4 h-4 ${
+                  bookmark.favorite
+                    ? "text-yellow-500 fill-current"
+                    : "text-gray-400"
+                }`}
+              />
+            </button>
             <button
               onClick={() => {
                 setRenameBookmarkId(bookmark.id)
                 setRenameValue(bookmark.title || "")
               }}
-              className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
             >
               <Edit3 className="w-4 h-4 text-gray-600" />
             </button>
             <button
-              onClick={() => setAddToFolderBookmarkId(bookmark.id)}
-              className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
-            >
-              <Folder className="w-4 h-4 text-gray-600" />
-            </button>
-            <button
               onClick={() => handleDeleteBookmark(bookmark.id)}
-              className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
             >
               <Trash2 className="w-4 h-4 text-red-600" />
             </button>
           </div>
         </div>
       </div>
-    </div>
-  )
-
-  const BookmarkListItem = ({ bookmark }: { bookmark: Bookmark }) => (
-    <div className="group relative bg-white/70 backdrop-blur-lg rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-white/40">
-      <div className="flex items-center gap-4">
-        {showCheckboxes && (
-          <input
-            type="checkbox"
-            checked={selectedBookmarks.includes(bookmark.id)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setSelectedBookmarks([...selectedBookmarks, bookmark.id])
-              } else {
-                setSelectedBookmarks(
-                  selectedBookmarks.filter((id) => id !== bookmark.id)
-                )
-              }
-            }}
-            className="w-4 h-4 rounded border-2 border-gray-300 checked:bg-blue-500 transition-all duration-300"
-          />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {bookmark.favorite && (
-              <Star className="w-4 h-4 text-yellow-500 fill-current" />
-            )}
-            <h3 className="font-medium text-gray-800 truncate">
-              {bookmark.title}
-            </h3>
-            <span
-              className={`text-xs px-2 py-1 rounded-full bg-gradient-to-r ${getFolderColor(
-                bookmark.folderId || "Other"
-              )} text-white`}
-            >
-              {folders.find((f) => f.id === bookmark.folderId)?.title ||
-                "Other"}
-            </span>
-          </div>
-          <p className="text-sm text-gray-600 truncate">
-            {bookmark.description}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href={bookmark.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors duration-300"
-          >
-            <ExternalLink className="w-4 h-4 text-blue-600" />
-          </a>
-          <button
-            onClick={() => toggleFavorite(bookmark.id)}
-            className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
-          >
-            <Star
-              className={`w-4 h-4 ${
-                bookmark.favorite
-                  ? "text-yellow-500 fill-current"
-                  : "text-gray-400"
-              }`}
-            />
-          </button>
-          <button
-            onClick={() => {
-              setRenameBookmarkId(bookmark.id)
-              setRenameValue(bookmark.title || "")
-            }}
-            className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
-          >
-            <Edit3 className="w-4 h-4 text-gray-600" />
-          </button>
-          <button
-            onClick={() => handleDeleteBookmark(bookmark.id)}
-            className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
-          >
-            <Trash2 className="w-4 h-4 text-red-600" />
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden rounded-2xl">
