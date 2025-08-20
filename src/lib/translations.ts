@@ -1,0 +1,28 @@
+export const translations = {
+  en: {
+    brandTitle: "Bookmark Manager",
+    brandSubtitle: "Organize your digital life",
+    home: "Home",
+    bookmarks: "Bookmarks",
+    menu: "Menu",
+    welcome: "Welcome!",
+    login: "Sign in with Google",
+    logout: "Log Out",
+    premium: "Premium User",
+    premiumMember: "Premium Member",
+    folders: "Folders",
+  },
+  vi: {
+    brandTitle: "Bookmark Manager",
+    brandSubtitle: "Tổ chức cuộc sống số của bạn",
+    home: "Trang chủ",
+    bookmarks: "Bookmarks",
+    menu: "Menu",
+    welcome: "Chào mừng!",
+    login: "Đăng nhập với Google",
+    logout: "Đăng xuất",
+    premium: "Người dùng Premium",
+    premiumMember: "Thành viên Premium",
+    folders: "Thư mục",
+  },
+}

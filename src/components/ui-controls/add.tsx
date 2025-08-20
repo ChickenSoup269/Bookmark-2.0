@@ -14,13 +14,11 @@ import {
   Folder,
   ChevronDown,
 } from "lucide-react"
-import { db, auth } from "@/lib/firebase"
-import { addDoc, collection, query, onSnapshot } from "firebase/firestore"
 
 type Folder = {
   id: string
   title: string
-  color?: string // Thêm trường color cho folder
+  color?: string
 }
 
 export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
@@ -48,46 +46,27 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
     "khác",
   ]
 
-  // Lấy danh sách folder từ Firestore
+  // Mock data cho demo
   useEffect(() => {
-    if (!auth.currentUser) return
-    const foldersQuery = query(
-      collection(db, `users/${auth.currentUser.uid}/folders`)
-    )
-    const unsubscribe = onSnapshot(foldersQuery, (snapshot) => {
-      try {
-        const folderData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          title: doc.data().title || `Folder ${doc.id}`,
-          color: doc.data().color || "#6B7280", // Mặc định màu xám nếu không có
-        }))
-        setFolders(folderData)
-      } catch (error) {
-        console.error("Error fetching folders:", error)
-      }
-    })
-    return () => unsubscribe()
+    setFolders([
+      { id: "1", title: "Development", color: "#3B82F6" },
+      { id: "2", title: "Design", color: "#EF4444" },
+      { id: "3", title: "Learning", color: "#22C55E" },
+    ])
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!auth.currentUser) {
-      setError("Vui lòng đăng nhập để thêm bookmark.")
+  const handleSubmit = async () => {
+    if (!title.trim() || !url.trim() || !validateUrl(url)) {
+      setError("Vui lòng điền đầy đủ thông tin hợp lệ.")
       return
     }
+
     setIsLoading(true)
     setError(null)
 
     try {
-      await addDoc(collection(db, `users/${auth.currentUser.uid}/bookmarks`), {
-        title,
-        url,
-        description,
-        folderId: folderId || "Other",
-        tags,
-        createdAt: new Date(),
-        favorite: false,
-      })
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       setTitle("")
       setUrl("")
@@ -147,7 +126,7 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
       )}
 
       {error && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl animate-in slide-in-from-top-2 duration-500">
+        <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-blue-50 border border-red-200 rounded-2xl animate-in slide-in-from-top-2 duration-500">
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
               <X className="w-4 h-4 text-white" />
@@ -161,9 +140,9 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="group relative w-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 text-white rounded-3xl p-6 shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+          className="group relative w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded-3xl p-6 shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 hover:-translate-y-1 overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="absolute top-4 right-4 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
             <Sparkles className="w-6 h-6 animate-pulse" />
           </div>

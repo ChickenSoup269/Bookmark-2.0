@@ -5,7 +5,11 @@ const nextConfig: NextConfig = {
 }
 module.exports = {
   images: {
-    domains: ["images.unsplash.com", "lh3.googleusercontent.com"],
+    domains: [
+      "images.unsplash.com",
+      "lh3.googleusercontent.com",
+      "encrypted-tbn0.gstatic.com",
+    ],
   },
 }
 

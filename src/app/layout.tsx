@@ -1,9 +1,8 @@
-import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/lib/theme-provider"
+import { FontProvider } from "@/lib/changeTextFont"
+import { LanguageProvider } from "@/lib/changeLanguage"
 import Navbar from "@/components/Navbar"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Bookmark Manager",
@@ -16,11 +15,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en">
+      <body>
         <ThemeProvider>
-          <Navbar />
-          {children}
+          <FontProvider>
+            <LanguageProvider>
+              <Navbar />
+              {children}
+            </LanguageProvider>
+          </FontProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -56,7 +56,7 @@ const colorPalette = [
   "#22C55E", // Xanh lá
   "#3B82F6", // Xanh dương
   "#8B5CF6", // Tím
-  "#EC4899", // Hồng
+  "#3B82F6", // Xanh dương (thay thế màu hồng)
   "#6B7280", // Xám (mặc định)
 ]
 
@@ -480,15 +480,15 @@ export default function BookmarkManager() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden rounded-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 relative overflow-hidden rounded-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
       <div className="relative z-10 container mx-auto px-6 py-8 max-w-7xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-blue-600 bg-clip-text text-transparent mb-4">
             Bookmark Manager
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -504,7 +504,7 @@ export default function BookmarkManager() {
                 placeholder="Search bookmarks..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-12 py-3 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
+                className="w-full pl-10 pr-12 py-3 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
               />
               {search && (
                 <button
@@ -520,8 +520,8 @@ export default function BookmarkManager() {
                 onClick={() => setViewMode("grid")}
                 className={`p-3 rounded-xl transition-all duration-300 ${
                   viewMode === "grid"
-                    ? "bg-white shadow-lg text-purple-600"
-                    : "text-gray-600 hover:text-purple-600"
+                    ? "bg-white shadow-lg text-blue-600"
+                    : "text-gray-600 hover:text-blue-600"
                 }`}
               >
                 <Grid className="w-5 h-5" />
@@ -530,8 +530,8 @@ export default function BookmarkManager() {
                 onClick={() => setViewMode("list")}
                 className={`p-3 rounded-xl transition-all duration-300 ${
                   viewMode === "list"
-                    ? "bg-white shadow-lg text-purple-600"
-                    : "text-gray-600 hover:text-purple-600"
+                    ? "bg-white shadow-lg text-blue-600"
+                    : "text-gray-600 hover:text-blue-600"
                 }`}
               >
                 <List className="w-5 h-5" />
@@ -557,7 +557,7 @@ export default function BookmarkManager() {
               <select
                 value={selectedFolder}
                 onChange={(e) => setSelectedFolder(e.target.value)}
-                className="px-4 py-2 bg-white/70 rounded-xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-gray-700"
+                className="px-4 py-2 bg-white/70 rounded-xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
               >
                 <option value="">All Folders</option>
                 {folders.map((folder) => (
@@ -569,7 +569,7 @@ export default function BookmarkManager() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 bg-white/70 rounded-xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-gray-700"
+                className="px-4 py-2 bg-white/70 rounded-xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
               >
                 <option value="default">Default Order</option>
                 <option value="new">Newest First</option>
@@ -595,7 +595,7 @@ export default function BookmarkManager() {
         <div className="flex flex-wrap items-center justify-between mb-8">
           <div className="flex items-center gap-6">
             <div className="bg-white/70 backdrop-blur-xl rounded-2xl px-6 py-3 shadow-lg border border-white/20">
-              <span className="text-2xl font-bold text-purple-600">
+              <span className="text-2xl font-bold text-blue-600">
                 {sortedBookmarks.length}
               </span>
               <span className="text-gray-600 ml-2">bookmarks</span>
@@ -627,7 +627,7 @@ export default function BookmarkManager() {
               {selectedBookmarks.length > 0 && (
                 <button
                   onClick={() => setAddToFolderBookmarkId(selectedBookmarks[0])}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
                 >
                   <Folder className="w-5 h-5" />
                   Move to Folder
@@ -682,7 +682,7 @@ export default function BookmarkManager() {
                 type="text"
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-gray-700"
+                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
                 placeholder="Enter new name..."
                 maxLength={255}
               />
@@ -715,7 +715,7 @@ export default function BookmarkManager() {
               <select
                 value={selectedFolder}
                 onChange={(e) => setSelectedFolder(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-gray-700"
+                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
               >
                 <option value="">Select Folder</option>
                 {folders.map((folder) => (
@@ -729,7 +729,7 @@ export default function BookmarkManager() {
                 type="text"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-gray-700"
+                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
                 placeholder="Create new folder..."
               />
               <div className="flex flex-wrap gap-2">
@@ -739,7 +739,7 @@ export default function BookmarkManager() {
                     onClick={() => setNewFolderColor(color)}
                     className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
                       newFolderColor === color
-                        ? "border-purple-500 scale-110"
+                        ? "border-blue-500 scale-110"
                         : "border-white/30"
                     }`}
                     style={{ backgroundColor: color }}
@@ -750,12 +750,12 @@ export default function BookmarkManager() {
                 type="color"
                 value={newFolderColor}
                 onChange={(e) => setNewFolderColor(e.target.value)}
-                className="w-full h-12 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                className="w-full h-12 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
               <div className="flex gap-3">
                 <button
                   onClick={handleAddToFolderSave}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 font-medium"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-medium"
                 >
                   <Check className="w-5 h-5" />
                   Save
@@ -785,7 +785,7 @@ export default function BookmarkManager() {
                 type="text"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-gray-700"
+                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
                 placeholder="Enter folder name..."
                 maxLength={100}
               />
@@ -800,7 +800,7 @@ export default function BookmarkManager() {
                       onClick={() => setNewFolderColor(color)}
                       className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
                         newFolderColor === color
-                          ? "border-purple-500 scale-110"
+                          ? "border-blue-500 scale-110"
                           : "border-white/30"
                       }`}
                       style={{ backgroundColor: color }}
@@ -811,7 +811,7 @@ export default function BookmarkManager() {
                   type="color"
                   value={newFolderColor}
                   onChange={(e) => setNewFolderColor(e.target.value)}
-                  className="w-full h-12 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full h-12 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
               </div>
               <div className="flex gap-3">
@@ -844,7 +844,7 @@ export default function BookmarkManager() {
       )}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-2xl hover:shadow-purple-500/25 hover:scale-110 transition-all duration-300 z-40"
+        className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-2xl hover:shadow-blue-500/25 hover:scale-110 transition-all duration-300 z-40"
       >
         <ChevronUp className="w-6 h-6" />
       </button>
