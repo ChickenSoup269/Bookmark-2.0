@@ -646,7 +646,7 @@ export default function Navbar() {
                           }&color=${isDarkMode ? "000000" : "FFFFFF"}&size=32`
                         }
                         alt="Profile"
-                        className="w-10 h-10 pixelated object-cover border-2 border-current rounded-4xl"
+                        className="w-10 h-10 pixelated object-cover border-2 border-current rounded-xl"
                       />
                       <div className="hidden lg:block text-left">
                         <p className="font-medium">{user.displayName}</p>

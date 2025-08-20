@@ -15,7 +15,7 @@ export const FontProvider = ({ children }: { children: ReactNode }) => {
   const toggleFont = () => {
     const newFont = font === "normal" ? "gohu" : "normal"
     setFont(newFont)
-    console.log("Font updated to:", newFont) // Log the new state
+    console.log("Font toggled to:", newFont) // Debug the new state
   }
 
   return (

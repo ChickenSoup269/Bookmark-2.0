@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/lib/theme-provider"
 import { FontProvider } from "@/lib/changeTextFont"
 import { LanguageProvider } from "@/lib/changeLanguage"
 import Navbar from "@/components/Navbar"
+import Footer from "@/components/Footer"
 
 export const metadata = {
   title: "Bookmark Manager",
@@ -22,6 +23,7 @@ export default function RootLayout({
             <LanguageProvider>
               <Navbar />
               {children}
+              <Footer />
             </LanguageProvider>
           </FontProvider>
         </ThemeProvider>
