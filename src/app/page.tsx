@@ -15,24 +15,20 @@ import {
   Check,
   ArrowDown,
   Heart,
-  Folder,
   Search,
-  Filter,
-  Layout,
-  Palette,
-  Rocket,
   Crown,
   Download,
-  Share2,
-  Eye,
 } from "lucide-react"
 import Image from "next/image"
-import { useTheme } from "@/lib/theme-provider"
+import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import UserDropdownMenu from "@/components/ui-setting/userDropDownMenu" // Adjust path as needed
+import { useCursor } from "@/lib/CursorContext"
 
 export default function Home() {
   const [currentFeature, setCurrentFeature] = useState(0)
-  const [isVisible, setIsVisible] = useState({})
+  // const [isVisible, setIsVisible] = useState({})
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const { isCursorEnabled } = useCursor()
   const { isDarkMode } = useTheme()
 
   const features = [
@@ -120,18 +116,23 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleMouseMove = (e: { clientX: any; clientY: any }) => {
+    const handleMouseMove = (e: { clientX: number; clientY: number }) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
     }
-    window.addEventListener("mousemove", handleMouseMove)
+    if (isCursorEnabled) {
+      window.addEventListener("mousemove", handleMouseMove)
+    }
     return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [])
+  }, [isCursorEnabled])
 
   const handleScroll = () => {
     const element = document.getElementById("features")
     element?.scrollIntoView({ behavior: "smooth" })
   }
+
+  // const toggleCursor = () => {
+  //   setIsCursorEnabled((prev) => !prev)
+  // }
 
   return (
     <div
@@ -213,33 +214,35 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Animated cursor follower with shadow */}
-      <div
-        className={`fixed w-8 h-8 border-2 rounded-none pointer-events-none z-50 transition-all duration-300 ease-out ${
-          isDarkMode ? "bg-white border-white" : "bg-black border-black"
-        }`}
-        style={{
-          left: mousePosition.x - 16,
-          top: mousePosition.y - 16,
-          transform: `scale(${mousePosition.x > 0 ? 1 : 0})`,
-          boxShadow: isDarkMode
-            ? "0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3)"
-            : "0 0 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 0, 0, 0.3)",
-          filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))",
-        }}
-      />
-
-      {/* Cursor trail effect */}
-      <div
-        className={`fixed w-4 h-4 border rounded-none pointer-events-none z-49 transition-all duration-400 ease-out opacity-30 ${
-          isDarkMode ? "bg-white border-white" : "bg-black border-black"
-        }`}
-        style={{
-          left: mousePosition.x - 8,
-          top: mousePosition.y - 8,
-          transform: `scale(${mousePosition.x > 0 ? 0.7 : 0})`,
-        }}
-      />
+      {/* Cursor follower (conditionally rendered) */}
+      {isCursorEnabled && (
+        <>
+          <div
+            className={`fixed w-8 h-8 border-2 rounded-none pointer-events-none z-50 transition-all duration-300 ease-out ${
+              isDarkMode ? "bg-white border-white" : "bg-black border-black"
+            }`}
+            style={{
+              left: mousePosition.x - 16,
+              top: mousePosition.y - 16,
+              transform: `scale(${mousePosition.x > 0 ? 1 : 0})`,
+              boxShadow: isDarkMode
+                ? "0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3)"
+                : "0 0 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 0, 0, 0.3)",
+              filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))",
+            }}
+          />
+          <div
+            className={`fixed w-4 h-4 border rounded-none pointer-events-none z-49 transition-all duration-400 ease-out opacity-30 ${
+              isDarkMode ? "bg-white border-white" : "bg-black border-black"
+            }`}
+            style={{
+              left: mousePosition.x - 8,
+              top: mousePosition.y - 8,
+              transform: `scale(${mousePosition.x > 0 ? 0.7 : 0})`,
+            }}
+          />
+        </>
+      )}
 
       {/* Hero Section */}
       <section className="relative z-10 min-h-screen flex items-center justify-center px-6">
@@ -604,93 +607,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <style jsx>{`
-        @font-face {
-          font-family: "GohuFont";
-          src: url("/fonts/GohuFont11NerdFontMono-Regular.ttf") format("ttf"),
-            url("/fonts/GohuFont11NerdFontMono-Regular.ttf") format("truetype");
-          font-weight: normal;
-          font-style: normal;
-        }
-
-        .font-gohu {
-          font-family: "GohuFont", monospace;
-        }
-
-        .pixelated {
-          image-rendering: pixelated;
-        }
-
-        @keyframes pixel-bounce {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-4px);
-          }
-        }
-
-        @keyframes pixel-pulse {
-          0%,
-          100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.7;
-          }
-        }
-
-        .animate-bounce {
-          animation: pixel-bounce 0.5s steps(4) infinite;
-        }
-
-        .animate-pulse {
-          animation: pixel-pulse 1s steps(4) infinite;
-        }
-
-        .pixel-smoke {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          z-index: 5;
-        }
-
-        .smoke-pixel {
-          position: absolute;
-          width: 8px;
-          height: 8px;
-          border: 1px solid;
-          image-rendering: pixelated;
-          animation: smoke-move 8s linear infinite;
-        }
-
-        .pixel-smoke.light .smoke-pixel {
-          background-color: rgba(0, 0, 0, 0.15);
-          border-color: rgba(0, 0, 0, 0.25);
-        }
-
-        .pixel-smoke.dark .smoke-pixel {
-          background-color: rgba(255, 255, 255, 0.15);
-          border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        @keyframes smoke-move {
-          0% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.15;
-          }
-          50% {
-            transform: translate(150px, ${Math.random() * 20 - 10}px) scale(1.1);
-            opacity: 0.35;
-          }
-          100% {
-            transform: translate(300px, ${Math.random() * 40 - 20}px) scale(1.2);
-            opacity: 0.1;
-          }
-        }
-      `}</style>
     </div>
   )
 }

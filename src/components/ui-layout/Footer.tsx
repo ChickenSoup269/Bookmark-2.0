@@ -1,12 +1,17 @@
 "use client"
 
-import { useTheme } from "@/lib/theme-provider"
+import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import { useFont } from "@/lib/controls-setting-change/changeTextFont"
+import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
 import Image from "next/image"
 import Link from "next/link"
 import { Facebook, Twitter, Instagram, Github } from "lucide-react"
+import { translations } from "@/lib/translations"
 
-const Footer = () => {
+export default function Footer() {
   const { isDarkMode } = useTheme()
+  const { font } = useFont()
+  const { language } = useLanguage()
 
   return (
     <footer
@@ -14,7 +19,7 @@ const Footer = () => {
         isDarkMode
           ? "bg-black text-white border-white"
           : "bg-white text-black border-black"
-      }`}
+      } ${font === "gohu" ? "font-gohu" : "font-normal"}`}
     >
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -28,8 +33,10 @@ const Footer = () => {
               className="object-contain pixelated"
             />
             <div className="hidden md:block">
-              <h3 className="text-lg font-bold">Bookmarks manager</h3>
-              <p className="text-xs">Powered by Creativity</p>
+              <h3 className="text-lg font-bold">
+                {translations[language].brandTitle}
+              </h3>
+              <p className="text-xs">{translations[language].brandSubtitle}</p>
             </div>
           </div>
 
@@ -83,29 +90,12 @@ const Footer = () => {
 
           {/* Copyright */}
           <div className="text-center md:text-right text-sm">
-            © {new Date().getFullYear()} Your Brand. All rights reserved.
+            © {new Date().getFullYear()}{" "}
+            <Link href="https://github.com/ChickenSoup269">ChickenSoup269</Link>{" "}
+            . All rights reserved.
           </div>
         </div>
       </div>
-      <style jsx>{`
-        .pixelated {
-          image-rendering: pixelated;
-        }
-        @keyframes pixel-pulse {
-          0%,
-          100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.7;
-          }
-        }
-        .animate-pulse {
-          animation: pixel-pulse 1s steps(4) infinite;
-        }
-      `}</style>
     </footer>
   )
 }
-
-export default Footer

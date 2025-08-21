@@ -15,6 +15,7 @@ import {
   Moon,
   Palette,
   Languages,
+  Eye,
 } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import {
@@ -34,10 +35,12 @@ import { db } from "@/lib/firebase"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useTheme } from "@/lib/theme-provider"
-import { useFont } from "@/lib/changeTextFont"
-import { useLanguage } from "@/lib/changeLanguage"
+import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import { useFont } from "@/lib/controls-setting-change/changeTextFont"
+import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
+import { useCursor } from "@/lib/CursorContext"
 import { translations } from "@/lib/translations"
+import { animate } from "animejs"
 
 // Components
 const BrandLogo = ({
@@ -93,14 +96,14 @@ const DesktopNavLinks = ({
   >
     <Link
       href="/"
-      className={`flex items-center gap-2 px-3 py-1 border-2 transition-all duration-200 steps-4 ${
+      className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
         pathname === "/"
           ? isDarkMode
             ? "bg-white text-black border-white"
             : "bg-black text-white border-black"
           : isDarkMode
-          ? "bg-black text-white border-white hover:bg-gray-900"
-          : "bg-white text-black border-black hover:bg-gray-200"
+          ? "bg-black text-white border-white"
+          : "bg-white text-black border-black"
       }`}
     >
       <Home className="w-4 h-4 pixelated" />
@@ -108,14 +111,14 @@ const DesktopNavLinks = ({
     </Link>
     <Link
       href="/bookmarks"
-      className={`flex items-center gap-2 px-3 py-1 border-2 transition-all duration-200 steps-4 ${
+      className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
         pathname === "/bookmarks"
           ? isDarkMode
             ? "bg-white text-black border-white"
             : "bg-black text-white border-black"
           : isDarkMode
-          ? "bg-black text-white border-white hover:bg-gray-900"
-          : "bg-white text-black border-black hover:bg-gray-200"
+          ? "bg-black text-white border-white"
+          : "bg-white text-black border-black"
       }`}
     >
       <Bookmark className="w-4 h-4 pixelated" />
@@ -145,6 +148,8 @@ const ProfileDropdown = ({
   toggleLanguage,
   handleLogout,
   font,
+  isCursorEnabled,
+  toggleCursor,
 }: {
   user: FirebaseUser
   isDarkMode: boolean
@@ -155,80 +160,202 @@ const ProfileDropdown = ({
   toggleLanguage: () => void
   handleLogout: () => void
   font: string
-}) => (
-  <div
-    className={`absolute top-full right-0 mt-2 w-64 border-2 shadow-[8px_8px_0_0] rounded-none p-4 animate-in slide-in-from-top-2 duration-200 steps-4 ${
-      isDarkMode
-        ? "bg-black text-white border-white shadow-white"
-        : "bg-white text-black border-black shadow-black"
-    }`}
-  >
-    {/* User Info */}
-    <div className="pb-3 border-b border-current ">
-      <div className="flex items-center gap-3">
+  isCursorEnabled: boolean
+  toggleCursor: () => void
+}) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prev) => !prev)
+  }
+
+  // Animate toggle actions
+  const animateToggle = (target: string) => {
+    animate(
+      {
+        scale: [1, 1.1, 1],
+        opacity: [1, 0.8, 1],
+        duration: 300,
+        easing: "easeInOutQuad",
+      },
+      target
+    )
+  }
+
+  const handleLanguageToggle = () => {
+    animateToggle(".language-toggle")
+    toggleLanguage()
+  }
+
+  const handleFontToggle = () => {
+    animateToggle(".font-toggle")
+    toggleFont()
+  }
+
+  const handleCursorToggle = () => {
+    animateToggle(".cursor-toggle")
+    toggleCursor()
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={toggleDropdown}
+        className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+          isDarkMode
+            ? "bg-black text-white border-white"
+            : "bg-white text-black border-black"
+        }`}
+      >
         <Image
-          width={48}
-          height={48}
+          width={32}
+          height={32}
           src={
             user.photoURL ||
             `https://ui-avatars.com/api/?name=${encodeURIComponent(
               user.displayName || "User"
             )}&background=${isDarkMode ? "FFFFFF" : "000000"}&color=${
               isDarkMode ? "000000" : "FFFFFF"
-            }&size=48`
+            }&size=32`
           }
           alt="Profile"
-          className="w-12 h-12 pixelated object-cover border-2 border-current rounded-4xl"
+          className="w-10 h-10 pixelated object-cover border-2 border-current rounded-xl"
         />
-        <div>
-          <h3 className="font-bold">{user.displayName}</h3>
-          <p className="text-xs">{user.email}</p>
-          <div className="flex items-center gap-1 mt-1">
-            <Crown className="w-3 h-3 border border-current" />
-            <span className="text-xs font-medium">
-              {translations[language].premiumMember}
-            </span>
+        <div className="hidden lg:block text-left">
+          <p className="font-medium">{user.displayName}</p>
+          <p className="text-xs">{translations[language].premium}</p>
+        </div>
+        <Crown
+          className={`w-3 h-3 animate-pulse hidden lg:block ${
+            isDarkMode
+              ? "text-black bg-white border border-white"
+              : "text-white bg-black border border-black"
+          }`}
+        />
+      </button>
+      {isDropdownOpen && (
+        <div
+          className={`absolute right-0 mt-2 w-64 border-2 shadow-[8px_8px_0_0] rounded-none transition-all duration-200 steps-4 ${
+            isDarkMode
+              ? "bg-black border-white shadow-white text-white"
+              : "bg-white border-black shadow-black text-black"
+          }`}
+        >
+          <div className="p-4">
+            {/* User Info */}
+            <div className="pb-3 border-b border-current">
+              <div className="flex items-center gap-3">
+                <Image
+                  width={48}
+                  height={48}
+                  src={
+                    user.photoURL ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      user.displayName || "User"
+                    )}&background=${isDarkMode ? "FFFFFF" : "000000"}&color=${
+                      isDarkMode ? "000000" : "FFFFFF"
+                    }&size=48`
+                  }
+                  alt="Profile"
+                  className="w-12 h-12 pixelated object-cover border-2 border-current rounded-4xl"
+                />
+                <div>
+                  <h3 className="font-bold">{user.displayName}</h3>
+                  <p className="text-xs">{user.email}</p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <Crown className="w-3 h-3 border border-current" />
+                    <span className="text-xs font-medium">
+                      {translations[language].premiumMember}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="py-3 border-b border-current">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center p-2 border-2 border-current">
+                  <div className="text-xl font-bold animate-pulse">
+                    {bookmarkCount}
+                  </div>
+                  <div className="text-xs">
+                    {translations[language].bookmarks}
+                  </div>
+                </div>
+                <div className="text-center p-2 border-2 border-current">
+                  <div className="text-xl font-bold animate-pulse">
+                    {folderCount}
+                  </div>
+                  <div className="text-xs">
+                    {translations[language].folders}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-3 space-y-2">
+              <button
+                onClick={handleFontToggle}
+                className={`font-toggle w-full flex items-center justify-between gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  isDarkMode
+                    ? "bg-black border-white text-white"
+                    : "bg-white border-black text-black"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 pixelated" />
+                  {font === "gohu" ? "Normal Font" : "Gohu Font"}
+                </div>
+              </button>
+              <button
+                onClick={handleLanguageToggle}
+                className={`language-toggle w-full flex items-center justify-between gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  isDarkMode
+                    ? "bg-black border-white text-white"
+                    : "bg-white border-black text-black"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Languages className="w-4 h-4 pixelated" />
+                  {language === "en" ? "Tiếng Việt" : "English"}
+                </div>
+              </button>
+              <button
+                onClick={handleCursorToggle}
+                className={`cursor-toggle w-full flex items-center justify-between gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  isDarkMode
+                    ? "bg-black border-white text-white"
+                    : "bg-white border-black text-black"
+                }`}
+                aria-label="Toggle cursor effect"
+              >
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 pixelated" />
+                  {isCursorEnabled ? "Disable Cursor" : "Enable Cursor"}
+                </div>
+              </button>
+              <button
+                onClick={handleLogout}
+                className={`w-full flex items-center justify-between gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  isDarkMode
+                    ? "bg-black border-white text-white"
+                    : "bg-white border-black text-black"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <LogOut className="w-4 h-4 pixelated" />
+                  {translations[language].logout}
+                </div>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
-
-    {/* Stats */}
-    <div className="py-3 border-b border-current">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="text-center p-2 border-2 border-current">
-          <div className="text-xl font-bold animate-pulse">{bookmarkCount}</div>
-          <div className="text-xs">{translations[language].bookmarks}</div>
-        </div>
-        <div className="text-center p-2 border-2 border-current">
-          <div className="text-xl font-bold animate-pulse">{folderCount}</div>
-          <div className="text-xs">{translations[language].folders}</div>
-        </div>
-      </div>
-    </div>
-
-    {/* Actions */}
-    <div className="pt-3 space-y-2">
-      <FontToggle isDarkMode={isDarkMode} font={font} toggleFont={toggleFont} />
-      <LanguageToggle
-        isDarkMode={isDarkMode}
-        language={language}
-        toggleLanguage={toggleLanguage}
-      />
-      <button
-        onClick={handleLogout}
-        className={`w-full flex items-center justify-center gap-2 py-2 border-2 transition-all duration-200 steps-4 ${
-          isDarkMode
-            ? "bg-white text-black border-white hover:bg-gray-300"
-            : "bg-black text-white border-black hover:bg-gray-800"
-        }`}
-      >
-        <LogOut className="w-4 h-4 pixelated" />
-        {translations[language].logout}
-      </button>
-    </div>
-  </div>
-)
+  )
+}
 
 const MobileMenu = ({
   user,
@@ -281,10 +408,10 @@ const MobileMenu = ({
           </div>
           <button
             onClick={() => setIsMenuOpen(false)}
-            className={`p-2 border-2 ${
+            className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
               isDarkMode
-                ? "bg-black text-white border-white hover:bg-gray-900"
-                : "bg-white text-black border-black hover:bg-gray-200"
+                ? "bg-black text-white border-white"
+                : "bg-white text-black border-black"
             }`}
           >
             <X className="w-4 h-4 pixelated" />
@@ -311,7 +438,7 @@ const MobileMenu = ({
                     }&size=48`
                   }
                   alt="Profile"
-                  className="w-12 h-12 pixelated object-cover border-2 border-current "
+                  className="w-12 h-12 pixelated object-cover border-2 border-current"
                 />
                 <div>
                   <h3 className="font-bold">{user.displayName}</h3>
@@ -329,14 +456,14 @@ const MobileMenu = ({
             <div className="space-y-2 mb-6">
               <Link
                 href="/"
-                className={`w-full flex items-center gap-3 p-3 border-2 transition-all duration-200 steps-4 ${
+                className={`w-full flex items-center gap-3 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                   isDarkMode
                     ? pathname === "/"
                       ? "bg-white text-black border-white"
-                      : "bg-black text-white border-white hover:bg-gray-900"
+                      : "bg-black text-white border-white"
                     : pathname === "/"
                     ? "bg-black text-white border-black"
-                    : "bg-white text-black border-black hover:bg-gray-200"
+                    : "bg-white text-black border-black"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -347,14 +474,14 @@ const MobileMenu = ({
               </Link>
               <Link
                 href="/bookmarks"
-                className={`w-full flex items-center gap-3 p-3 border-2 transition-all duration-200 steps-4 ${
+                className={`w-full flex items-center gap-3 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                   isDarkMode
                     ? pathname === "/bookmarks"
                       ? "bg-white text-black border-white"
-                      : "bg-black text-white border-white hover:bg-gray-900"
+                      : "bg-black text-white border-white"
                     : pathname === "/bookmarks"
                     ? "bg-black text-white border-black"
-                    : "bg-white text-black border-black hover:bg-gray-200"
+                    : "bg-white text-black border-black"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -389,10 +516,10 @@ const MobileMenu = ({
                 handleLogout()
                 setIsMenuOpen(false)
               }}
-              className={`w-full flex items-center justify-center gap-2 py-3 border-2 transition-all duration-200 steps-4 ${
+              className={`w-full flex items-center justify-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                 isDarkMode
-                  ? "bg-white text-black border-white hover:bg-gray-300"
-                  : "bg-black text-white border-black hover:bg-gray-800"
+                  ? "bg-black text-white border-white"
+                  : "bg-white text-black border-black"
               }`}
             >
               <LogOut className="w-4 h-4 pixelated" />
@@ -429,10 +556,10 @@ const MobileMenu = ({
                 handleLogin()
                 setIsMenuOpen(false)
               }}
-              className={`w-full flex items-center justify-center gap-2 py-3 border-2 transition-all duration-200 steps-4 ${
+              className={`w-full flex items-center justify-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                 isDarkMode
-                  ? "bg-white text-black border-white hover:bg-gray-300"
-                  : "bg-black text-white border-black hover:bg-gray-800"
+                  ? "bg-black text-white border-white"
+                  : "bg-white text-black border-black"
               }`}
             >
               <LogIn className="w-4 h-4 pixelated" />
@@ -454,10 +581,10 @@ const ThemeToggle = ({
 }) => (
   <button
     onClick={toggleDarkMode}
-    className={`p-2 border-2 transition-all duration-200 steps-4 ${
+    className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
       isDarkMode
-        ? "bg-black text-white border-white hover:bg-gray-900"
-        : "bg-white text-black border-black hover:bg-gray-200"
+        ? "bg-black text-white border-white"
+        : "bg-white text-black border-black"
     }`}
   >
     {isDarkMode ? (
@@ -479,10 +606,10 @@ const LanguageToggle = ({
 }) => (
   <button
     onClick={toggleLanguage}
-    className={`w-full flex items-center justify-center gap-2 py-2 border-2 transition-all duration-200 steps-4 ${
+    className={`w-full flex items-center justify-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
       isDarkMode
-        ? "bg-white text-black border-white hover:bg-gray-300"
-        : "bg-black text-white border-black hover:bg-gray-800"
+        ? "bg-black text-white border-white"
+        : "bg-white text-black border-black"
     }`}
   >
     <Languages className="w-4 h-4 pixelated" />
@@ -490,38 +617,16 @@ const LanguageToggle = ({
   </button>
 )
 
-const FontToggle = ({
-  isDarkMode,
-  font,
-  toggleFont,
-}: {
-  isDarkMode: boolean
-  font: string
-  toggleFont: () => void
-}) => (
-  <button
-    onClick={toggleFont}
-    className={`w-full flex items-center justify-center gap-2 py-2 border-2 transition-all duration-200 steps-4 ${
-      isDarkMode
-        ? "bg-white text-black border-white hover:bg-gray-300"
-        : "bg-black text-white border-black hover:bg-gray-800"
-    }`}
-  >
-    <Palette className="w-4 h-4 pixelated" />
-    {font === "gohu" ? "Normal Font" : "Gohu Font"}
-  </button>
-)
-
 export default function Navbar() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
-  const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false)
   const [bookmarkCount, setBookmarkCount] = useState<number>(0)
   const [folderCount, setFolderCount] = useState<number>(0)
   const [isScrolled, setIsScrolled] = useState<boolean>(false)
   const { isDarkMode, toggleDarkMode } = useTheme()
   const { font, toggleFont } = useFont()
   const { language, toggleLanguage } = useLanguage()
+  const { isCursorEnabled, toggleCursor } = useCursor()
   const pathname = usePathname()
 
   // Scroll detection for sticky navbar
@@ -538,7 +643,6 @@ export default function Navbar() {
     const unsubscribe = auth.onAuthStateChanged(
       (currentUser: FirebaseUser | null) => {
         setUser(currentUser)
-        setIsProfileOpen(false)
         setIsMenuOpen(false)
       }
     )
@@ -587,7 +691,6 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await signOut(auth)
-      setIsProfileOpen(false)
       setIsMenuOpen(false)
     } catch (error) {
       console.error("Error signing out:", error)
@@ -609,7 +712,7 @@ export default function Navbar() {
             : "bg-white text-black border-2 border-black"
         }`}
       >
-        <div className="relative z-10 container mx-auto px-4 py-3 ">
+        <div className="relative z-10 container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <BrandLogo isDarkMode={isDarkMode} language={language} />
             <div className="hidden md:flex items-center gap-4">
@@ -625,57 +728,19 @@ export default function Navbar() {
                     isDarkMode={isDarkMode}
                     toggleDarkMode={toggleDarkMode}
                   />
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className={`flex items-center gap-2 p-2 border-2  transition-all duration-200 steps-4 ${
-                        isDarkMode
-                          ? "bg-black text-white border-white hover:bg-gray-900"
-                          : "bg-white text-black border-black hover:bg-gray-200"
-                      }`}
-                    >
-                      <Image
-                        width={32}
-                        height={32}
-                        src={
-                          user.photoURL ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                            user.displayName || "User"
-                          )}&background=${
-                            isDarkMode ? "FFFFFF" : "000000"
-                          }&color=${isDarkMode ? "000000" : "FFFFFF"}&size=32`
-                        }
-                        alt="Profile"
-                        className="w-10 h-10 pixelated object-cover border-2 border-current rounded-xl"
-                      />
-                      <div className="hidden lg:block text-left">
-                        <p className="font-medium">{user.displayName}</p>
-                        <p className="text-xs">
-                          {translations[language].premium}
-                        </p>
-                      </div>
-                      <Crown
-                        className={`w-3 h-3 animate-pulse hidden lg:block ${
-                          isDarkMode
-                            ? "text-black bg-white border border-white"
-                            : "text-white bg-black border border-black"
-                        }`}
-                      />
-                    </button>
-                    {isProfileOpen && (
-                      <ProfileDropdown
-                        user={user}
-                        isDarkMode={isDarkMode}
-                        language={language}
-                        bookmarkCount={bookmarkCount}
-                        folderCount={folderCount}
-                        toggleFont={toggleFont}
-                        toggleLanguage={toggleLanguage}
-                        handleLogout={handleLogout}
-                        font={font}
-                      />
-                    )}
-                  </div>
+                  <ProfileDropdown
+                    user={user}
+                    isDarkMode={isDarkMode}
+                    language={language}
+                    bookmarkCount={bookmarkCount}
+                    folderCount={folderCount}
+                    toggleFont={toggleFont}
+                    toggleLanguage={toggleLanguage}
+                    handleLogout={handleLogout}
+                    font={font}
+                    isCursorEnabled={isCursorEnabled}
+                    toggleCursor={toggleCursor}
+                  />
                 </>
               ) : (
                 <>
@@ -685,10 +750,10 @@ export default function Navbar() {
                   />
                   <button
                     onClick={handleLogin}
-                    className={`flex items-center gap-2 px-4 py-2 border-2  transition-all duration-200 steps-4 ${
+                    className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                       isDarkMode
-                        ? "bg-white text-black border-white hover:bg-gray-300"
-                        : "bg-black text-white border-black hover:bg-gray-800"
+                        ? "bg-black text-white border-white"
+                        : "bg-white text-black border-black"
                     }`}
                   >
                     <LogIn className="w-4 h-4 pixelated" />
@@ -704,10 +769,10 @@ export default function Navbar() {
               />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={`p-2 border-2 transition-all duration-200 steps-4 ${
+                className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                   isDarkMode
-                    ? "bg-black text-white border-white hover:bg-gray-900"
-                    : "bg-white text-black border-black hover:bg-gray-200"
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
                 }`}
               >
                 {isMenuOpen ? (
@@ -732,12 +797,6 @@ export default function Navbar() {
           handleLogout={handleLogout}
           toggleLanguage={toggleLanguage}
           pathname={pathname}
-        />
-      )}
-      {isProfileOpen && (
-        <div
-          className="fixed inset-0 z-30"
-          onClick={() => setIsProfileOpen(false)}
         />
       )}
     </>

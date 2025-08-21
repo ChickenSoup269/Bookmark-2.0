@@ -1,9 +1,10 @@
 import "./globals.css"
-import { ThemeProvider } from "@/lib/theme-provider"
-import { FontProvider } from "@/lib/changeTextFont"
-import { LanguageProvider } from "@/lib/changeLanguage"
-import Navbar from "@/components/Navbar"
-import Footer from "@/components/Footer"
+import { ThemeProvider } from "@/lib/controls-setting-change/theme-provider"
+import { FontProvider } from "@/lib/controls-setting-change/changeTextFont"
+import { LanguageProvider } from "@/lib/controls-setting-change/changeLanguage"
+import { CursorProvider } from "@/lib/CursorContext"
+import Navbar from "@/components/ui-layout/Navbar"
+import Footer from "@/components/ui-layout/Footer"
 
 export const metadata = {
   title: "Bookmark Manager",
@@ -21,9 +22,11 @@ export default function RootLayout({
         <ThemeProvider>
           <FontProvider>
             <LanguageProvider>
-              <Navbar />
-              {children}
-              <Footer />
+              <CursorProvider>
+                <Navbar />
+                {children}
+                <Footer />
+              </CursorProvider>
             </LanguageProvider>
           </FontProvider>
         </ThemeProvider>
