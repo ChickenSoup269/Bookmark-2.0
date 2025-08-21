@@ -1,4 +1,5 @@
 "use client"
+
 import { useState, useEffect } from "react"
 import {
   Bookmark,
@@ -15,13 +16,19 @@ import {
   Check,
   ArrowDown,
   Heart,
+  Folder,
   Search,
+  Filter,
+  Layout,
+  Palette,
+  Rocket,
   Crown,
   Download,
+  Share2,
+  Eye,
 } from "lucide-react"
 import Image from "next/image"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
-import UserDropdownMenu from "@/components/ui-setting/userDropDownMenu" // Adjust path as needed
 import { useCursor } from "@/lib/CursorContext"
 
 export default function Home() {
@@ -129,10 +136,6 @@ export default function Home() {
     const element = document.getElementById("features")
     element?.scrollIntoView({ behavior: "smooth" })
   }
-
-  // const toggleCursor = () => {
-  //   setIsCursorEnabled((prev) => !prev)
-  // }
 
   return (
     <div
