@@ -400,10 +400,10 @@ const LanguageToggle = ({
 
 const ScrollToTopButton = ({
   isDarkMode,
-  isChatOpen,
+  isChatbotVisible,
 }: {
   isDarkMode: boolean
-  isChatOpen: boolean
+  isChatbotVisible: boolean
 }) => {
   const [isVisible, setIsVisible] = useState(false)
 
@@ -431,7 +431,7 @@ const ScrollToTopButton = ({
           ? "bg-black text-white border-white"
           : "bg-white text-black border-black"
       } ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-0"} ${
-        isChatOpen ? "bottom-20" : "bottom-12"
+        isChatbotVisible ? "bottom-18" : "bottom-4"
       }`}
       style={{ transformOrigin: "bottom right" }}
       aria-label="Scroll to top"
@@ -742,7 +742,10 @@ export default function Navbar() {
           pathname={pathname}
         />
       )}
-      <ScrollToTopButton isDarkMode={isDarkMode} isChatOpen={isChatOpen} />
+      <ScrollToTopButton
+        isDarkMode={isDarkMode}
+        isChatbotVisible={isChatbotVisible}
+      />
       <ChatbotButton
         isDarkMode={isDarkMode}
         isChatOpen={isChatOpen}
