@@ -11,6 +11,8 @@ export const translations = {
     premium: "Premium User",
     premiumMember: "Premium Member",
     folders: "Folders",
+    chatWelcomeDark: "Welcome to the chatbot (dark mode)",
+    chatWelcomeLight: "Welcome to the chatbot (light mode)",
   },
   vi: {
     brandTitle: "Bookmark Manager",
@@ -24,5 +26,7 @@ export const translations = {
     premium: "Người dùng Premium",
     premiumMember: "Thành viên Premium",
     folders: "Thư mục",
+    chatWelcomeDark: "Chào mừng đến với chatbot (chế độ tối)",
+    chatWelcomeLight: "Chào mừng đến với chatbot (chế độ sáng)",
   },
 }

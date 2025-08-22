@@ -1,361 +1,291 @@
+"use client"
+
 import { useState } from "react"
-import { User, Eye, Palette, Volume2, Bell, Shield } from "lucide-react"
-import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import {
+  User,
+  Palette,
+  Languages,
+  Eye,
+  LogOut,
+  Crown,
+  MessageCircle,
+} from "lucide-react"
+import Image from "next/image"
+import { translations } from "@/lib/translations"
+// import anime from "animejs"
+import type { User as FirebaseUser } from "firebase/auth"
 
 interface UserDropdownMenuProps {
+  user: FirebaseUser | null
+  isDarkMode: boolean
+  language: keyof typeof translations
+  bookmarkCount: number
+  folderCount: number
+  toggleFont: () => void
+  toggleLanguage: () => void
+  handleLogout: () => void
+  font: string
   isCursorEnabled: boolean
   toggleCursor: () => void
+  isChatbotVisible: boolean
+  toggleChatbot: () => void
 }
 
-// Modern CSS Toggle Switch Component
 const ModernToggle = ({
   isOn,
   onToggle,
   label,
   icon: Icon,
   isDarkMode,
-  variant = "primary",
+  className,
 }: {
   isOn: boolean
   onToggle: () => void
   label: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   isDarkMode: boolean
-  variant?: "primary" | "success" | "warning" | "danger" | "info"
-}) => {
-  const variants = {
-    primary: {
-      on: "from-blue-500 to-blue-600",
-      off: "from-gray-400 to-gray-500",
-      glow: "shadow-blue-400/50",
-    },
-    success: {
-      on: "from-green-500 to-green-600",
-      off: "from-gray-400 to-gray-500",
-      glow: "shadow-green-400/50",
-    },
-    warning: {
-      on: "from-yellow-500 to-yellow-600",
-      off: "from-gray-400 to-gray-500",
-      glow: "shadow-yellow-400/50",
-    },
-    danger: {
-      on: "from-red-500 to-red-600",
-      off: "from-gray-400 to-gray-500",
-      glow: "shadow-red-400/50",
-    },
-    info: {
-      on: "from-purple-500 to-purple-600",
-      off: "from-gray-400 to-gray-500",
-      glow: "shadow-purple-400/50",
-    },
-  }
-
-  const currentVariant = variants[variant]
-
-  return (
-    <div
-      className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 ${
-        isDarkMode
-          ? "bg-gray-800/50 border-gray-700 hover:bg-gray-800/70"
-          : "bg-white/80 border-gray-200 hover:bg-white/90"
-      } backdrop-blur-sm hover:scale-[1.02]`}
-    >
-      <div className="flex items-center gap-3">
-        <div
-          className={`p-2 rounded-lg ${
-            isDarkMode ? "bg-gray-700" : "bg-gray-100"
-          } transition-colors duration-300`}
-        >
-          <Icon
-            className={`w-5 h-5 transition-colors duration-300 ${
-              isOn
-                ? isDarkMode
-                  ? "text-white"
-                  : "text-gray-800"
-                : isDarkMode
-                ? "text-gray-400"
-                : "text-gray-500"
-            }`}
-          />
-        </div>
-        <div>
-          <h4
-            className={`font-medium ${
-              isDarkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
-            {label}
-          </h4>
-          <p
-            className={`text-sm ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            {isOn ? "Enabled" : "Disabled"}
-          </p>
-        </div>
-      </div>
-
-      {/* Modern Toggle Switch */}
-      <button
-        onClick={onToggle}
-        className={`relative inline-flex h-8 w-16 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-          isDarkMode ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"
-        } ${
-          isOn
-            ? `bg-gradient-to-r ${currentVariant.on} ${currentVariant.glow} shadow-lg`
-            : `bg-gradient-to-r ${currentVariant.off}`
-        } hover:scale-110 active:scale-95`}
-      >
-        {/* Switch Handle */}
-        <span
-          className={`inline-block h-6 w-6 transform rounded-full bg-white transition-all duration-300 shadow-md ${
-            isOn ? "translate-x-9" : "translate-x-1"
-          } ${isOn ? "shadow-lg" : "shadow-sm"}`}
-        >
-          {/* Inner dot indicator */}
-          <span
-            className={`absolute inset-1 rounded-full transition-all duration-300 ${
-              isOn ? `bg-gradient-to-r ${currentVariant.on}` : "bg-gray-300"
-            }`}
-          />
-        </span>
-
-        {/* Glow effect when on */}
-        {isOn && (
-          <div
-            className={`absolute inset-0 rounded-full bg-gradient-to-r ${currentVariant.on} opacity-30 blur-sm animate-pulse`}
-          />
-        )}
-      </button>
+  className: string
+}) => (
+  <div
+    className={`flex items-center justify-between p-2 border-2 rounded-none transition-all duration-200 steps-4 ${
+      isDarkMode
+        ? "bg-black border-white text-white"
+        : "bg-white border-black text-black"
+    }`}
+  >
+    <div className="flex items-center gap-2">
+      <Icon className="w-4 h-4 pixelated" />
+      <span className="font-medium">{label}</span>
     </div>
-  )
-}
-
-// Sliding Toggle with Labels
-const SlidingToggle = ({
-  isOn,
-  onToggle,
-  label,
-  icon: Icon,
-  isDarkMode,
-  onLabel = "ON",
-  offLabel = "OFF",
-}: {
-  isOn: boolean
-  onToggle: () => void
-  label: string
-  icon: any
-  isDarkMode: boolean
-  onLabel?: string
-  offLabel?: string
-}) => {
-  return (
-    <div
-      className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 ${
-        isDarkMode
-          ? "bg-gray-800/50 border-gray-700 hover:bg-gray-800/70"
-          : "bg-white/80 border-gray-200 hover:bg-white/90"
-      } backdrop-blur-sm hover:scale-[1.02]`}
+    <button
+      onClick={onToggle}
+      className={`${className} w-10 h-5 border-2 rounded-none relative transition-all duration-200 steps-4 ${
+        isDarkMode ? "bg-black border-white" : "bg-white border-black"
+      }`}
+      aria-label={`Toggle ${label}`}
     >
-      <div className="flex items-center gap-3">
-        <Icon
-          className={`w-6 h-6 transition-colors duration-300 ${
-            isOn
-              ? "text-emerald-500"
-              : isDarkMode
-              ? "text-gray-400"
-              : "text-gray-500"
-          }`}
-        />
-        <span
-          className={`font-medium ${
-            isDarkMode ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {label}
-        </span>
-      </div>
-
-      {/* Sliding Toggle with Labels */}
-      <div
-        className={`relative h-10 w-24 rounded-full border-2 transition-all duration-300 ${
+      <span
+        className={`absolute top-0.5 w-4 h-4 border-2 transition-all duration-200 steps-4 ${
           isOn
-            ? "bg-gradient-to-r from-emerald-400 to-emerald-500 border-emerald-400"
-            : isDarkMode
-            ? "bg-gray-700 border-gray-600"
-            : "bg-gray-200 border-gray-300"
+            ? `left-5 ${
+                isDarkMode ? "bg-white border-white" : "bg-black border-black"
+              }`
+            : `left-0.5 ${
+                isDarkMode
+                  ? "bg-gray-600 border-white"
+                  : "bg-gray-400 border-black"
+              }`
         }`}
-      >
-        {/* Background Labels */}
-        <div className="absolute inset-0 flex items-center justify-between px-2 text-xs font-bold">
-          <span
-            className={`transition-opacity duration-300 ${
-              !isOn ? "opacity-100" : "opacity-0"
-            } ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
-          >
-            {offLabel}
-          </span>
-          <span
-            className={`transition-opacity duration-300 ${
-              isOn ? "opacity-100" : "opacity-0"
-            } text-white`}
-          >
-            {onLabel}
-          </span>
-        </div>
-
-        {/* Sliding Handle */}
-        <button
-          onClick={onToggle}
-          className={`absolute top-1 h-8 w-10 rounded-full transition-all duration-300 shadow-lg transform ${
-            isOn ? "translate-x-12 bg-white" : "translate-x-1"
-          } ${
-            isOn
-              ? "bg-white shadow-emerald-200"
-              : isDarkMode
-              ? "bg-gray-300 shadow-gray-500"
-              : "bg-white shadow-gray-300"
-          } hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-400`}
-        >
-          <div
-            className={`w-full h-full rounded-full transition-all duration-300 ${
-              isOn
-                ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
-                : "bg-gradient-to-r from-gray-400 to-gray-500"
-            } opacity-20`}
-          />
-        </button>
-      </div>
-    </div>
-  )
-}
+      />
+    </button>
+  </div>
+)
 
 export default function UserDropdownMenu({
+  user,
+  isDarkMode,
+  language,
+  bookmarkCount,
+  folderCount,
+  toggleFont,
+  toggleLanguage,
+  handleLogout,
+  font,
   isCursorEnabled,
   toggleCursor,
+  isChatbotVisible,
+  toggleChatbot,
 }: UserDropdownMenuProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const [notificationEnabled, setNotificationEnabled] = useState(false)
-  const [darkModeLocal, setDarkModeLocal] = useState(false)
-  const [securityMode, setSecurityMode] = useState(true)
-
-  const { isDarkMode } = useTheme()
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev)
   }
 
+  // Animate toggle actions
+
+  const handleLanguageToggle = () => {
+    toggleLanguage()
+  }
+
+  const handleFontToggle = () => {
+    toggleFont()
+  }
+
+  const handleCursorToggle = () => {
+    toggleCursor()
+  }
+
+  const handleChatbotToggle = () => {
+    toggleChatbot()
+  }
+
   return (
     <div className="relative">
-      {/* User Button */}
       <button
         onClick={toggleDropdown}
-        className={`p-3 rounded-full border-2 transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+        className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
           isDarkMode
-            ? "bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
-            : "bg-white border-gray-300 text-gray-800 hover:bg-gray-50"
-        } shadow-lg hover:shadow-xl`}
+            ? "bg-black text-white border-white"
+            : "bg-white text-black border-black"
+        }`}
       >
-        <User className="w-6 h-6" />
+        {user ? (
+          <>
+            <Image
+              width={32}
+              height={32}
+              src={
+                user.photoURL ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  user.displayName || "User"
+                )}&background=${isDarkMode ? "FFFFFF" : "000000"}&color=${
+                  isDarkMode ? "000000" : "FFFFFF"
+                }&size=32`
+              }
+              alt="Profile"
+              className="w-10 h-10 pixelated object-cover border-2 border-current rounded-xl"
+            />
+            <div className="hidden lg:block text-left">
+              <p className="font-medium">{user.displayName}</p>
+              <p className="text-xs">{translations[language].premium}</p>
+            </div>
+            <Crown
+              className={`w-3 h-3 animate-pulse hidden lg:block ${
+                isDarkMode
+                  ? "text-black bg-white border border-white"
+                  : "text-white bg-black border border-black"
+              }`}
+            />
+          </>
+        ) : (
+          <User className="w-6 h-6 pixelated" />
+        )}
       </button>
-
-      {/* Dropdown Menu */}
       {isDropdownOpen && (
         <div
-          className={`absolute right-0 mt-4 w-80 rounded-2xl border shadow-2xl transition-all duration-300 ${
+          className={`absolute right-0 mt-2 w-64 border-2 shadow-[8px_8px_0_0] rounded-none transition-all duration-200 steps-4 ${
             isDarkMode
-              ? "bg-gray-900/95 border-gray-700 text-white"
-              : "bg-white/95 border-gray-200 text-gray-900"
-          } backdrop-blur-lg z-50 animate-in slide-in-from-top-2`}
+              ? "bg-black border-white shadow-white text-white"
+              : "bg-white border-black shadow-black text-black"
+          }`}
         >
-          {/* Header */}
-          <div className="p-6 border-b border-opacity-20">
-            <h3
-              className={`text-xl font-bold ${
-                isDarkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              User Settings
-            </h3>
-            <p
-              className={`text-sm ${
-                isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              Customize your experience
-            </p>
-          </div>
+          <div className="p-4">
+            {user ? (
+              <>
+                {/* User Info */}
+                <div className="pb-3 border-b border-current">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      width={48}
+                      height={48}
+                      src={
+                        user.photoURL ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user.displayName || "User"
+                        )}&background=${
+                          isDarkMode ? "FFFFFF" : "000000"
+                        }&color=${isDarkMode ? "000000" : "FFFFFF"}&size=48`
+                      }
+                      alt="Profile"
+                      className="w-12 h-12 pixelated object-cover border-2 border-current rounded-4xl"
+                    />
+                    <div>
+                      <h3 className="font-bold">{user.displayName}</h3>
+                      <p className="text-xs">{user.email}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Crown className="w-3 h-3 border border-current" />
+                        <span className="text-xs font-medium">
+                          {translations[language].premiumMember}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Settings */}
-          <div className="p-4 space-y-3">
-            {/* Cursor Effect - Modern Toggle */}
-            <ModernToggle
-              isOn={isCursorEnabled}
-              onToggle={toggleCursor}
-              label="Cursor Effects"
-              icon={Eye}
-              isDarkMode={isDarkMode}
-              variant="primary"
-            />
+                {/* Stats */}
+                <div className="py-3 border-b border-current">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-2 border-2 border-current">
+                      <div className="text-xl font-bold animate-pulse">
+                        {bookmarkCount}
+                      </div>
+                      <div className="text-xs">
+                        {translations[language].bookmarks}
+                      </div>
+                    </div>
+                    <div className="text-center p-2 border-2 border-current">
+                      <div className="text-xl font-bold animate-pulse">
+                        {folderCount}
+                      </div>
+                      <div className="text-xs">
+                        {translations[language].folders}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Sound - Sliding Toggle */}
-            <SlidingToggle
-              isOn={soundEnabled}
-              onToggle={() => setSoundEnabled(!soundEnabled)}
-              label="Sound Effects"
-              icon={Volume2}
-              isDarkMode={isDarkMode}
-            />
-
-            {/* Theme Toggle */}
-            <ModernToggle
-              isOn={darkModeLocal}
-              onToggle={() => setDarkModeLocal(!darkModeLocal)}
-              label="Dark Theme"
-              icon={Palette}
-              isDarkMode={isDarkMode}
-              variant="warning"
-            />
-
-            {/* Notifications */}
-            <ModernToggle
-              isOn={notificationEnabled}
-              onToggle={() => setNotificationEnabled(!notificationEnabled)}
-              label="Notifications"
-              icon={Bell}
-              isDarkMode={isDarkMode}
-              variant="info"
-            />
-
-            {/* Security Mode */}
-            <ModernToggle
-              isOn={securityMode}
-              onToggle={() => setSecurityMode(!securityMode)}
-              label="Security Mode"
-              icon={Shield}
-              isDarkMode={isDarkMode}
-              variant="success"
-            />
-          </div>
-
-          {/* Footer */}
-          <div
-            className={`p-4 border-t border-opacity-20 ${
-              isDarkMode ? "border-gray-700" : "border-gray-200"
-            }`}
-          >
-            <button
-              className={`w-full p-3 rounded-xl font-medium transition-all duration-300 ${
-                isDarkMode
-                  ? "bg-gray-800 hover:bg-gray-700 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-              } hover:scale-[1.02]`}
-            >
-              Save Settings
-            </button>
+                {/* Settings */}
+                <div className="pt-3 space-y-2">
+                  <ModernToggle
+                    isOn={font === "gohu"}
+                    onToggle={handleFontToggle}
+                    label="Gohu Font"
+                    icon={Palette}
+                    isDarkMode={isDarkMode}
+                    className="font-toggle cursor-pointer"
+                  />
+                  <ModernToggle
+                    isOn={language === "en"}
+                    onToggle={handleLanguageToggle}
+                    label={language === "en" ? "English" : "Tiếng Việt"}
+                    icon={Languages}
+                    isDarkMode={isDarkMode}
+                    className="language-toggle cursor-pointer"
+                  />
+                  <ModernToggle
+                    isOn={isCursorEnabled}
+                    onToggle={handleCursorToggle}
+                    label="Cursor Effects"
+                    icon={Eye}
+                    isDarkMode={isDarkMode}
+                    className="cursor-toggle cursor-pointer"
+                  />
+                  <ModernToggle
+                    isOn={isChatbotVisible}
+                    onToggle={handleChatbotToggle}
+                    label="Chatbot"
+                    icon={MessageCircle}
+                    isDarkMode={isDarkMode}
+                    className="chatbot-toggle cursor-pointer"
+                  />
+                  <button
+                    onClick={handleLogout}
+                    className={`w-full flex items-center cursor-pointer justify-between gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 hover:bg-red-500 ${
+                      isDarkMode
+                        ? "bg-black border-white text-white"
+                        : "bg-white border-black text-black hover:text-white"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <LogOut className="w-4 h-4 pixelated" />
+                      {translations[language].logout}
+                    </div>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center">
+                <h3 className="text-lg font-bold mb-2">
+                  {translations[language].welcome}
+                </h3>
+                <p className="text-xs mb-4">
+                  {language === "en"
+                    ? "Sign in to manage your bookmarks"
+                    : "Đăng nhập để quản lý bookmark của bạn"}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

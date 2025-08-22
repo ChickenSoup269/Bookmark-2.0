@@ -1,6 +1,12 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react"
 
 interface FontContextType {
   font: string
@@ -10,12 +16,28 @@ interface FontContextType {
 const FontContext = createContext<FontContextType | undefined>(undefined)
 
 export const FontProvider = ({ children }: { children: ReactNode }) => {
-  const [font, setFont] = useState<string>("normal")
+  const [font, setFont] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const storedFont = localStorage.getItem("font")
+      console.log("Font initialized from localStorage:", storedFont || "normal")
+      return storedFont || "normal"
+    }
+    return "normal"
+  })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("font", font)
+      console.log("Font saved to localStorage:", font)
+    }
+  }, [font])
 
   const toggleFont = () => {
-    const newFont = font === "normal" ? "gohu" : "normal"
-    setFont(newFont)
-    console.log("Font toggled to:", newFont) // Debug the new state
+    setFont((prev) => {
+      const newFont = prev === "normal" ? "gohu" : "normal"
+      console.log("Font toggled to:", newFont)
+      return newFont
+    })
   }
 
   return (

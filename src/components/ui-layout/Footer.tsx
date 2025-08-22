@@ -26,7 +26,7 @@ export default function Footer() {
           {/* Logo Section */}
           <div className="flex items-center gap-3">
             <Image
-              src={"/assets/images/logo.png"} // Thay bằng đường dẫn ảnh của bạn
+              src={"/assets/images/logo.png"}
               alt="Footer Logo"
               width={200}
               height={200}
@@ -88,11 +88,24 @@ export default function Footer() {
             </Link>
           </div>
 
-          {/* Copyright */}
-          <div className="text-center md:text-right text-sm">
-            © {new Date().getFullYear()}{" "}
-            <Link href="https://github.com/ChickenSoup269">ChickenSoup269</Link>{" "}
-            . All rights reserved.
+          {/* Copyright + Privacy */}
+          <div className="text-center md:text-right text-sm space-x-2">
+            <span>
+              © {new Date().getFullYear()}{" "}
+              <Link href="https://github.com/ChickenSoup269">
+                ChickenSoup269
+              </Link>
+              . All rights reserved.
+            </span>
+            <span>·</span>
+            <Link
+              href="https://chickensoup269.github.io/privacy_extension_bookmark_2.0/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:opacity-80"
+            >
+              Privacy Policy
+            </Link>
           </div>
         </div>
       </div>

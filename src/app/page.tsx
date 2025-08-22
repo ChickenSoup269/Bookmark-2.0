@@ -30,6 +30,7 @@ import {
 import Image from "next/image"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 import { useCursor } from "@/lib/CursorContext"
+import Link from "next/link"
 
 export default function Home() {
   const [currentFeature, setCurrentFeature] = useState(0)
@@ -309,22 +310,25 @@ export default function Home() {
                   : "bg-black text-white border-black hover:bg-gray-800"
               }`}
             >
-              <div className="flex items-center gap-3">
+              <Link
+                className="flex items-center gap-3 cursor-pointer"
+                href="https://chromewebstore.google.com/detail/bookmark-manager/jhcoclfodfnchlddakkeegkogajdpgce?authuser=0&hl=en"
+              >
                 <Download className="w-6 h-6 pixelated group-hover:scale-110" />
                 Tải extension ngay!
                 <ChevronRight className="w-5 h-5 pixelated group-hover:translate-x-1" />
-              </div>
+              </Link>
             </button>
 
             <button
-              className={`group flex items-center gap-3 px-8 py-3 border-2 font-semibold text-lg transition-all duration-200 steps-4 hover:scale-105 ${
+              className={`group flex items-center gap-2 px-6 py-3 border-2 font-semibold text-lg transition-all duration-200 steps-4 hover:scale-105 cursor-pointer ${
                 isDarkMode
                   ? "bg-black text-white border-white hover:bg-gray-900"
                   : "bg-white text-black border-black hover:bg-gray-200"
               }`}
             >
               <div
-                className={`w-10 h-10 border-2 flex items-center justify-center group-hover:scale-110 ${
+                className={`w-6 h-6 border-2 flex items-center justify-center group-hover:scale-110 ${
                   isDarkMode
                     ? "bg-white text-black border-white"
                     : "bg-black text-white border-black"
@@ -491,6 +495,212 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Video Introduction Section */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-6xl font-bold mb-6">
+              Hướng dẫn
+              <br />
+              <span className="font-bold">Chi tiết</span>
+            </h2>
+            <p
+              className={`text-xl max-w-2xl mx-auto ${
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
+              Tìm hiểu cách sử dụng Bookmark Manager hiệu quả trong vài phút
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Video Preview - Left Side */}
+            <div className="relative order-2 lg:order-1">
+              <div
+                className={`p-4 border-2 shadow-[8px_8px_0_0] transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black border-white shadow-white"
+                    : "bg-white border-black shadow-black"
+                }`}
+              >
+                <div
+                  className={`relative aspect-video overflow-hidden ${
+                    isDarkMode ? "bg-gray-900" : "bg-gray-200"
+                  }`}
+                >
+                  {/* Video Thumbnail */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div
+                      className={`w-20 h-20 border-2 flex items-center justify-center transition-all duration-200 steps-4 cursor-pointer hover:scale-110 ${
+                        isDarkMode
+                          ? "bg-white text-black border-white hover:bg-gray-300"
+                          : "bg-black text-white border-black hover:bg-gray-800"
+                      }`}
+                    >
+                      <Play className="w-10 h-10 pixelated ml-1" />
+                    </div>
+                  </div>
+
+                  {/* Video duration badge */}
+                  <div
+                    className={`absolute bottom-4 right-4 px-3 py-1 border text-sm font-bold ${
+                      isDarkMode
+                        ? "bg-black text-white border-white"
+                        : "bg-white text-black border-black"
+                    }`}
+                  >
+                    3:45
+                  </div>
+
+                  {/* Decorative elements */}
+                  <div className="absolute top-4 left-4">
+                    <div
+                      className={`w-3 h-3 border ${
+                        isDarkMode
+                          ? "bg-white border-white"
+                          : "bg-black border-black"
+                      } animate-pulse`}
+                    />
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <div
+                      className={`w-2 h-2 border ${
+                        isDarkMode
+                          ? "bg-white border-white"
+                          : "bg-black border-black"
+                      } animate-bounce`}
+                    />
+                  </div>
+                </div>
+
+                {/* Video title */}
+                <div className="p-4">
+                  <h3 className="text-lg font-bold mb-2">
+                    Getting Started with Bookmark Manager
+                  </h3>
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    Tìm hiểu cách thiết lập và sử dụng các tính năng cơ bản
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Guide Content - Right Side */}
+            <div className="space-y-6 order-1 lg:order-2">
+              <div className="space-y-4">
+                <div
+                  className={`flex items-start gap-4 p-4 border-2 transition-all duration-200 steps-4 hover:scale-105 ${
+                    isDarkMode
+                      ? "bg-black border-white hover:bg-gray-900"
+                      : "bg-white border-black hover:bg-gray-200"
+                  }`}
+                >
+                  <div
+                    className={`w-8 h-8 border-2 flex items-center justify-center flex-shrink-0 font-bold ${
+                      isDarkMode
+                        ? "bg-white text-black border-white"
+                        : "bg-black text-white border-black"
+                    }`}
+                  >
+                    1
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg mb-2">
+                      Cài đặt Extension
+                    </h4>
+                    <p
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                    >
+                      Tải và cài đặt extension từ Chrome Web Store. Quá trình
+                      chỉ mất vài giây và hoàn toàn miễn phí.
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={`flex items-start gap-4 p-4 border-2 transition-all duration-200 steps-4 hover:scale-105 ${
+                    isDarkMode
+                      ? "bg-black border-white hover:bg-gray-900"
+                      : "bg-white border-black hover:bg-gray-200"
+                  }`}
+                >
+                  <div
+                    className={`w-8 h-8 border-2 flex items-center justify-center flex-shrink-0 font-bold ${
+                      isDarkMode
+                        ? "bg-white text-black border-white"
+                        : "bg-black text-white border-black"
+                    }`}
+                  >
+                    2
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg mb-2">Import Bookmarks</h4>
+                    <p
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                    >
+                      Đồng bộ tất cả bookmark hiện có từ trình duyệt. AI sẽ tự
+                      động phân loại và tổ chức chúng thành các folder thông
+                      minh.
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={`flex items-start gap-4 p-4 border-2 transition-all duration-200 steps-4 hover:scale-105 ${
+                    isDarkMode
+                      ? "bg-black border-white hover:bg-gray-900"
+                      : "bg-white border-black hover:bg-gray-200"
+                  }`}
+                >
+                  <div
+                    className={`w-8 h-8 border-2 flex items-center justify-center flex-shrink-0 font-bold ${
+                      isDarkMode
+                        ? "bg-white text-black border-white"
+                        : "bg-black text-white border-black"
+                    }`}
+                  >
+                    3
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg mb-2">
+                      Khám phá Features
+                    </h4>
+                    <p
+                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
+                    >
+                      Tìm hiểu các tính năng mạnh mẽ như Smart Search, Tag
+                      System, và Cross-Device Sync để tối ưu workflow.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional CTA */}
+              <div className="pt-6">
+                <button
+                  className={`group flex items-center gap-3 px-6 py-3 border-2 font-bold text-lg transition-all duration-200 steps-4 hover:scale-105 ${
+                    isDarkMode
+                      ? "bg-black text-white border-white hover:bg-gray-900"
+                      : "bg-white text-black border-black hover:bg-gray-200"
+                  }`}
+                >
+                  <Eye className="w-6 h-6 pixelated group-hover:scale-110" />
+                  Xem thêm tutorials
+                  <ChevronRight className="w-5 h-5 pixelated group-hover:translate-x-1" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="relative z-10 py-24 px-6"></section>
 
       {/* Testimonials Section */}
       <section className="relative z-10 py-24 px-6">

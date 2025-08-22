@@ -13,12 +13,9 @@ import {
   Crown,
   Sun,
   Moon,
-  Palette,
   Languages,
-  Eye,
-  Volume2,
-  Bell,
-  Shield,
+  ChevronUp,
+  MessageCircle,
 } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import {
@@ -43,7 +40,7 @@ import { useFont } from "@/lib/controls-setting-change/changeTextFont"
 import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
 import { useCursor } from "@/lib/CursorContext"
 import { translations } from "@/lib/translations"
-// import anime from "animejs"
+import UserDropdownMenu from "@/components/ui-setting/userDropDownMenu"
 
 // Components
 const BrandLogo = ({
@@ -140,329 +137,6 @@ const DesktopNavLinks = ({
     </Link>
   </div>
 )
-
-const ModernToggle = ({
-  isOn,
-  onToggle,
-  label,
-  icon: Icon,
-  isDarkMode,
-  className,
-}: {
-  isOn: boolean
-  onToggle: () => void
-  label: string
-  icon: any
-  isDarkMode: boolean
-  className: string
-}) => (
-  <div
-    className={`flex items-center justify-between p-2 border-2 rounded-none transition-all duration-200 steps-4 ${
-      isDarkMode
-        ? "bg-black border-white text-white"
-        : "bg-white border-black text-black"
-    }`}
-  >
-    <div className="flex items-center gap-2">
-      <Icon className="w-4 h-4 pixelated" />
-      <span className="font-medium">{label}</span>
-    </div>
-    <button
-      onClick={onToggle}
-      className={`${className} w-10 h-5 border-2 rounded-none relative transition-all duration-200 steps-4 ${
-        isDarkMode ? "bg-black border-white" : "bg-white border-black"
-      }`}
-      aria-label={`Toggle ${label}`}
-    >
-      <span
-        className={`absolute top-0.5 w-4 h-4 border-2 transition-all duration-200 steps-4 ${
-          isOn
-            ? `left-5 ${
-                isDarkMode ? "bg-white border-white" : "bg-black border-black"
-              }`
-            : `left-0.5 ${
-                isDarkMode
-                  ? "bg-gray-600 border-white"
-                  : "bg-gray-400 border-black"
-              }`
-        }`}
-      />
-    </button>
-  </div>
-)
-
-const UserDropdownMenu = ({
-  user,
-  isDarkMode,
-  language,
-  bookmarkCount,
-  folderCount,
-  toggleFont,
-  toggleLanguage,
-  handleLogout,
-  font,
-  isCursorEnabled,
-  toggleCursor,
-}: {
-  user: FirebaseUser | null
-  isDarkMode: boolean
-  language: keyof typeof translations
-  bookmarkCount: number
-  folderCount: number
-  toggleFont: () => void
-  toggleLanguage: () => void
-  handleLogout: () => void
-  font: string
-  isCursorEnabled: boolean
-  toggleCursor: () => void
-}) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const [notificationEnabled, setNotificationEnabled] = useState(false)
-  const [securityMode, setSecurityMode] = useState(true)
-  const { toggleDarkMode } = useTheme()
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev)
-  }
-
-  // Animate toggle actions
-  const animateToggle = (target: string) => {
-    // anime({
-    //   targets: target,
-    //   scale: [1, 1.1, 1],
-    //   opacity: [1, 0.8, 1],
-    //   duration: 300,
-    //   easing: "easeInOutQuad",
-    // })
-  }
-
-  const handleLanguageToggle = () => {
-    animateToggle(".language-toggle")
-    toggleLanguage()
-  }
-
-  const handleFontToggle = () => {
-    animateToggle(".font-toggle")
-    toggleFont()
-  }
-
-  const handleCursorToggle = () => {
-    animateToggle(".cursor-toggle")
-    toggleCursor()
-  }
-
-  const handleSoundToggle = () => {
-    animateToggle(".sound-toggle")
-    setSoundEnabled(!soundEnabled)
-  }
-
-  const handleNotificationToggle = () => {
-    animateToggle(".notification-toggle")
-    setNotificationEnabled(!notificationEnabled)
-  }
-
-  const handleSecurityToggle = () => {
-    animateToggle(".security-toggle")
-    setSecurityMode(!securityMode)
-  }
-
-  return (
-    <div className="relative">
-      <button
-        onClick={toggleDropdown}
-        className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
-          isDarkMode
-            ? "bg-black text-white border-white"
-            : "bg-white text-black border-black"
-        }`}
-      >
-        {user ? (
-          <>
-            <Image
-              width={32}
-              height={32}
-              src={
-                user.photoURL ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  user.displayName || "User"
-                )}&background=${isDarkMode ? "FFFFFF" : "000000"}&color=${
-                  isDarkMode ? "000000" : "FFFFFF"
-                }&size=32`
-              }
-              alt="Profile"
-              className="w-10 h-10 pixelated object-cover border-2 border-current rounded-xl"
-            />
-            <div className="hidden lg:block text-left">
-              <p className="font-medium">{user.displayName}</p>
-              <p className="text-xs">{translations[language].premium}</p>
-            </div>
-            <Crown
-              className={`w-3 h-3 animate-pulse hidden lg:block ${
-                isDarkMode
-                  ? "text-black bg-white border border-white"
-                  : "text-white bg-black border border-black"
-              }`}
-            />
-          </>
-        ) : (
-          <User className="w-6 h-6 pixelated" />
-        )}
-      </button>
-      {isDropdownOpen && (
-        <div
-          className={`absolute right-0 mt-2 w-64 border-2 shadow-[8px_8px_0_0] rounded-none transition-all duration-200 steps-4 ${
-            isDarkMode
-              ? "bg-black border-white shadow-white text-white"
-              : "bg-white border-black shadow-black text-black"
-          }`}
-        >
-          <div className="p-4">
-            {user ? (
-              <>
-                {/* User Info */}
-                <div className="pb-3 border-b border-current">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      width={48}
-                      height={48}
-                      src={
-                        user.photoURL ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          user.displayName || "User"
-                        )}&background=${
-                          isDarkMode ? "FFFFFF" : "000000"
-                        }&color=${isDarkMode ? "000000" : "FFFFFF"}&size=48`
-                      }
-                      alt="Profile"
-                      className="w-12 h-12 pixelated object-cover border-2 border-current rounded-4xl"
-                    />
-                    <div>
-                      <h3 className="font-bold">{user.displayName}</h3>
-                      <p className="text-xs">{user.email}</p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Crown className="w-3 h-3 border border-current" />
-                        <span className="text-xs font-medium">
-                          {translations[language].premiumMember}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="py-3 border-b border-current">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-2 border-2 border-current">
-                      <div className="text-xl font-bold animate-pulse">
-                        {bookmarkCount}
-                      </div>
-                      <div className="text-xs">
-                        {translations[language].bookmarks}
-                      </div>
-                    </div>
-                    <div className="text-center p-2 border-2 border-current">
-                      <div className="text-xl font-bold animate-pulse">
-                        {folderCount}
-                      </div>
-                      <div className="text-xs">
-                        {translations[language].folders}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Settings */}
-                <div className="pt-3 space-y-2">
-                  <ModernToggle
-                    isOn={font === "gohu"}
-                    onToggle={handleFontToggle}
-                    label="Gohu Font"
-                    icon={Palette}
-                    isDarkMode={isDarkMode}
-                    className="font-toggle"
-                  />
-                  <ModernToggle
-                    isOn={language === "en"}
-                    onToggle={handleLanguageToggle}
-                    label={language === "en" ? "English" : "Tiếng Việt"}
-                    icon={Languages}
-                    isDarkMode={isDarkMode}
-                    className="language-toggle"
-                  />
-                  <ModernToggle
-                    isOn={isCursorEnabled}
-                    onToggle={handleCursorToggle}
-                    label="Cursor Effects"
-                    icon={Eye}
-                    isDarkMode={isDarkMode}
-                    className="cursor-toggle"
-                  />
-                  <ModernToggle
-                    isOn={soundEnabled}
-                    onToggle={handleSoundToggle}
-                    label="Sound Effects"
-                    icon={Volume2}
-                    isDarkMode={isDarkMode}
-                    className="sound-toggle"
-                  />
-                  <ModernToggle
-                    isOn={notificationEnabled}
-                    onToggle={handleNotificationToggle}
-                    label="Notifications"
-                    icon={Bell}
-                    isDarkMode={isDarkMode}
-                    className="notification-toggle"
-                  />
-                  <ModernToggle
-                    isOn={securityMode}
-                    onToggle={handleSecurityToggle}
-                    label="Security Mode"
-                    icon={Shield}
-                    isDarkMode={isDarkMode}
-                    className="security-toggle"
-                  />
-                  <ModernToggle
-                    isOn={isDarkMode}
-                    onToggle={toggleDarkMode}
-                    label="Dark Theme"
-                    icon={Palette}
-                    isDarkMode={isDarkMode}
-                    className="theme-toggle"
-                  />
-                  <button
-                    onClick={handleLogout}
-                    className={`w-full flex items-center justify-between gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
-                      isDarkMode
-                        ? "bg-black border-white text-white"
-                        : "bg-white border-black text-black"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <LogOut className="w-4 h-4 pixelated" />
-                      {translations[language].logout}
-                    </div>
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="text-center">
-                <h3 className="text-lg font-bold mb-2">
-                  {translations[language].welcome}
-                </h3>
-                <p className="text-xs mb-4">
-                  {language === "en"
-                    ? "Sign in to manage your bookmarks"
-                    : "Đăng nhập để quản lý bookmark của bạn"}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 
 const MobileMenu = ({
   user,
@@ -724,17 +398,169 @@ const LanguageToggle = ({
   </button>
 )
 
+const ScrollToTopButton = ({
+  isDarkMode,
+  isChatOpen,
+}: {
+  isDarkMode: boolean
+  isChatOpen: boolean
+}) => {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      setIsVisible(window.scrollY > 300)
+    }
+
+    window.addEventListener("scroll", toggleVisibility)
+    return () => window.removeEventListener("scroll", toggleVisibility)
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  }
+
+  return (
+    <button
+      onClick={scrollToTop}
+      className={`fixed right-4 p-3 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-110 z-50 ${
+        isDarkMode
+          ? "bg-black text-white border-white"
+          : "bg-white text-black border-black"
+      } ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-0"} ${
+        isChatOpen ? "bottom-20" : "bottom-12"
+      }`}
+      style={{ transformOrigin: "bottom right" }}
+      aria-label="Scroll to top"
+    >
+      <ChevronUp className="w-6 h-6 pixelated" />
+    </button>
+  )
+}
+
+const ChatbotButton = ({
+  isDarkMode,
+  isChatOpen,
+  setIsChatOpen,
+  isChatbotVisible,
+  language,
+}: {
+  isDarkMode: boolean
+  isChatOpen: boolean
+  setIsChatOpen: (value: boolean) => void
+  isChatbotVisible: boolean
+  language: keyof typeof translations
+}) => {
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen)
+  }
+
+  if (!isChatbotVisible) return null
+
+  return (
+    <>
+      <button
+        onClick={toggleChat}
+        className={`fixed bottom-4 right-4 p-3 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-110 z-50 ${
+          isDarkMode
+            ? "bg-black text-white border-white"
+            : "bg-white text-black border-black"
+        }`}
+        aria-label="Toggle chatbot"
+      >
+        <MessageCircle className="w-6 h-6 pixelated" />
+      </button>
+      {isChatOpen && (
+        <div
+          className={`fixed bottom-16 right-4 w-80 h-96 border-2 shadow-[8px_8px_0_0] rounded-none transition-all duration-200 steps-4 z-50 ${
+            isDarkMode
+              ? "bg-black border-white shadow-white text-white"
+              : "bg-white border-black shadow-black text-black"
+          } animate-in slide-in-from-bottom-5`}
+        >
+          <div className="flex flex-col h-full p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-lg">Chatbot</h3>
+              <button
+                onClick={toggleChat}
+                className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                }`}
+              >
+                <X className="w-4 h-4 pixelated" />
+              </button>
+            </div>
+            <div className="flex-1 border-2 p-2 overflow-y-auto">
+              <p className="text-sm">
+                {isDarkMode
+                  ? translations[language].chatWelcomeDark
+                  : translations[language].chatWelcomeLight}
+              </p>
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                className={`flex-1 p-2 border-2 rounded-none text-sm ${
+                  isDarkMode
+                    ? "bg-black text-white border-white placeholder-gray-400"
+                    : "bg-white text-black border-black placeholder-gray-500"
+                }`}
+              />
+              <button
+                className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                }`}
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 export default function Navbar() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
   const [bookmarkCount, setBookmarkCount] = useState<number>(0)
   const [folderCount, setFolderCount] = useState<number>(0)
   const [isScrolled, setIsScrolled] = useState<boolean>(false)
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+  const [isChatbotVisible, setIsChatbotVisible] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const storedValue = localStorage.getItem("isChatbotVisible")
+      console.log(
+        "Chatbot visibility initialized from localStorage:",
+        storedValue || "true"
+      )
+      return storedValue !== null ? JSON.parse(storedValue) : true
+    }
+    return true
+  })
+
   const { isDarkMode, toggleDarkMode } = useTheme()
   const { font, toggleFont } = useFont()
   const { language, toggleLanguage } = useLanguage()
   const { isCursorEnabled, toggleCursor } = useCursor()
   const pathname = usePathname()
+
+  // Save isChatbotVisible to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("isChatbotVisible", JSON.stringify(isChatbotVisible))
+      console.log("Chatbot visibility saved to localStorage:", isChatbotVisible)
+    }
+  }, [isChatbotVisible])
 
   // Scroll detection for sticky navbar
   useEffect(() => {
@@ -804,6 +630,14 @@ export default function Navbar() {
     }
   }
 
+  const toggleChatbot = () => {
+    setIsChatbotVisible((prev) => {
+      const newValue = !prev
+      console.log("Chatbot visibility toggled to:", newValue)
+      return newValue
+    })
+  }
+
   return (
     <>
       <nav
@@ -847,6 +681,8 @@ export default function Navbar() {
                     font={font}
                     isCursorEnabled={isCursorEnabled}
                     toggleCursor={toggleCursor}
+                    isChatbotVisible={isChatbotVisible}
+                    toggleChatbot={toggleChatbot}
                   />
                 </>
               ) : (
@@ -906,6 +742,14 @@ export default function Navbar() {
           pathname={pathname}
         />
       )}
+      <ScrollToTopButton isDarkMode={isDarkMode} isChatOpen={isChatOpen} />
+      <ChatbotButton
+        isDarkMode={isDarkMode}
+        isChatOpen={isChatOpen}
+        setIsChatOpen={setIsChatOpen}
+        isChatbotVisible={isChatbotVisible}
+        language={language}
+      />
     </>
   )
 }

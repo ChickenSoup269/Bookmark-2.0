@@ -1,5 +1,12 @@
 "use client"
-import { createContext, useContext, useState, ReactNode } from "react"
+
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react"
 
 type LanguageType = "en" | "vi"
 
@@ -12,15 +19,32 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 )
 
-interface LanguageProviderProps {
-  children: ReactNode
-}
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useState<LanguageType>(() => {
+    if (typeof window !== "undefined") {
+      const storedLanguage = localStorage.getItem("language")
+      console.log(
+        "Language initialized from localStorage:",
+        storedLanguage || "vi"
+      )
+      return (storedLanguage as LanguageType) || "vi"
+    }
+    return "vi"
+  })
 
-export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguage] = useState<LanguageType>("vi") // Default to Vietnamese
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", language)
+      console.log("Language saved to localStorage:", language)
+    }
+  }, [language])
 
   const toggleLanguage = () => {
-    setLanguage((prevLanguage) => (prevLanguage === "vi" ? "en" : "vi"))
+    setLanguage((prevLanguage) => {
+      const newLanguage = prevLanguage === "vi" ? "en" : "vi"
+      console.log("Language toggled to:", newLanguage)
+      return newLanguage
+    })
   }
 
   return (
