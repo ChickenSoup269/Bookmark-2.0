@@ -29,6 +29,7 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
+import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 
 type Bookmark = {
   id: string
@@ -61,6 +62,7 @@ const colorPalette = [
 ]
 
 export default function BookmarkManager() {
+  const { isDarkMode } = useTheme()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
   const [selectedFolder, setSelectedFolder] = useState("")
@@ -78,6 +80,20 @@ export default function BookmarkManager() {
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
+  const [isChatbotVisible, setIsChatbotVisible] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const storedValue = localStorage.getItem("isChatbotVisible")
+      return storedValue !== null ? JSON.parse(storedValue) : true
+    }
+    return true
+  })
+
+  // Save isChatbotVisible to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("isChatbotVisible", JSON.stringify(isChatbotVisible))
+    }
+  }, [isChatbotVisible])
 
   // Lấy bookmark và thư mục từ Firestore
   useEffect(() => {
@@ -101,10 +117,10 @@ export default function BookmarkManager() {
       const folderData = snapshot.docs.map((doc) => ({
         id: doc.id,
         title: doc.data().title || `Folder ${doc.id}`,
-        color: doc.data().color || "#6B7280", // Đảm bảo color luôn có giá trị
+        color: doc.data().color || "#6B7280",
       }))
       setFolders(folderData)
-      console.log("Fetched folders:", folderData) // Debug: Kiểm tra dữ liệu folder
+      console.log("Fetched folders:", folderData)
     })
 
     return () => {
@@ -248,7 +264,6 @@ export default function BookmarkManager() {
   const getFolderColor = (folderId: string) => {
     const folder = folders.find((f) => f.id === folderId)
     const color = folder?.color || "#6B7280"
-    // Tính độ sáng để chọn màu text tương phản
     const luminance = (r: number, g: number, b: number) =>
       0.299 * r + 0.587 * g + 0.114 * b
     const hex = color.replace("#", "")
@@ -262,79 +277,81 @@ export default function BookmarkManager() {
   const BookmarkCard = ({ bookmark }: { bookmark: Bookmark }) => {
     const folderColor = getFolderColor(bookmark.folderId || "Other")
     return (
-      <div className="relative bg-white/70 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-white/20 overflow-hidden">
-        <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500">
-          <div
-            className="absolute inset-0 bg-gradient-to-br"
-            style={{
-              background: `linear-gradient(to bottom right, ${folderColor.background}, ${folderColor.background})`,
-            }}
-          ></div>
-        </div>
+      <div
+        className={`relative p-4 border-2 shadow-[8px_8px_0_0] transition-all duration-200 steps-4 hover:scale-105 ${
+          isDarkMode
+            ? "bg-black text-white border-white shadow-white"
+            : "bg-white text-black border-black shadow-black"
+        }`}
+      >
+        {showCheckboxes && (
+          <div className="absolute -top-2 -right-2">
+            <input
+              type="checkbox"
+              checked={selectedBookmarks.includes(bookmark.id)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedBookmarks([...selectedBookmarks, bookmark.id])
+                } else {
+                  setSelectedBookmarks(
+                    selectedBookmarks.filter((id) => id !== bookmark.id)
+                  )
+                }
+              }}
+              className={`w-5 h-5 border-2 transition-all duration-200 ${
+                isDarkMode
+                  ? "bg-black border-white checked:bg-white checked:border-white"
+                  : "bg-white border-black checked:bg-black checked:border-black"
+              }`}
+            />
+          </div>
+        )}
         <div className="relative z-10">
-          {showCheckboxes && (
-            <div className="absolute -top-2 -right-2">
-              <input
-                type="checkbox"
-                checked={selectedBookmarks.includes(bookmark.id)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedBookmarks([...selectedBookmarks, bookmark.id])
-                  } else {
-                    setSelectedBookmarks(
-                      selectedBookmarks.filter((id) => id !== bookmark.id)
-                    )
-                  }
-                }}
-                className="w-5 h-5 rounded-full border-2 border-white bg-white/20 backdrop-blur-sm checked:bg-blue-500 transition-all duration-300"
-              />
-            </div>
-          )}
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start justify-between mb-2">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 {bookmark.favorite && (
-                  <Star className="w-4 h-4 text-yellow-500 fill-current animate-pulse" />
+                  <Star className="w-4 h-4 text-yellow-500 fill-current pixelated" />
                 )}
                 <span
-                  className="text-xs font-medium px-2 py-1 rounded-full shadow-lg"
+                  className="text-xs font-medium px-2 py-1 border-2"
                   style={{
                     background: folderColor.background,
                     color: folderColor.text,
+                    borderColor: isDarkMode ? "white" : "black",
                   }}
                 >
                   {folders.find((f) => f.id === bookmark.folderId)?.title ||
                     "Other"}
                 </span>
               </div>
-              <h3 className="font-semibold text-gray-800 hover:text-gray-900 transition-colors duration-300 line-clamp-2">
-                {bookmark.title}
-              </h3>
+              <h3 className="font-semibold line-clamp-2">{bookmark.title}</h3>
             </div>
             <button
               onClick={() => toggleFavorite(bookmark.id)}
-              className="opacity-0 hover:opacity-100 transition-all duration-300 hover:scale-110 ml-2"
+              className="p-1 hover:scale-110 transition-all duration-200 steps-4"
             >
               <Star
-                className={`w-5 h-5 transition-colors duration-300 ${
+                className={`w-5 h-5 pixelated ${
                   bookmark.favorite
                     ? "text-yellow-500 fill-current"
-                    : "text-gray-400"
+                    : isDarkMode
+                    ? "text-white"
+                    : "text-black"
                 }`}
               />
             </button>
           </div>
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-            {bookmark.description}
-          </p>
-          <div className="flex flex-wrap gap-2 mb-4">
+          <p className="text-sm mb-2 line-clamp-2">{bookmark.description}</p>
+          <div className="flex flex-wrap gap-2 mb-2">
             {bookmark.tags?.map((tag, index) => (
               <span
                 key={index}
-                className="text-xs px-2 py-1 rounded-full shadow-md"
+                className="text-xs px-2 py-1 border-2"
                 style={{
                   background: folderColor.background,
                   color: folderColor.text,
+                  borderColor: isDarkMode ? "white" : "black",
                 }}
               >
                 {tag}
@@ -346,32 +363,38 @@ export default function BookmarkManager() {
               href={bookmark.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors duration-300 group/link"
+              className="flex items-center gap-2 hover:scale-105 transition-all duration-200 steps-4"
             >
               <span className="text-sm font-medium">Visit</span>
-              <ExternalLink className="w-4 h-4 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform duration-300" />
+              <ExternalLink className="w-4 h-4 pixelated" />
             </a>
-            <div className="flex items-center gap-2 opacity-0 hover:opacity-100 transition-all duration-300">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   setRenameBookmarkId(bookmark.id)
                   setRenameValue(bookmark.title || "")
                 }}
-                className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+                className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                  isDarkMode ? "bg-black border-white" : "bg-white border-black"
+                }`}
               >
-                <Edit3 className="w-4 h-4 text-gray-600" />
+                <Edit3 className="w-4 h-4 pixelated" />
               </button>
               <button
                 onClick={() => setAddToFolderBookmarkId(bookmark.id)}
-                className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+                className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                  isDarkMode ? "bg-black border-white" : "bg-white border-black"
+                }`}
               >
-                <Folder className="w-4 h-4 text-gray-600" />
+                <Folder className="w-4 h-4 pixelated" />
               </button>
               <button
                 onClick={() => handleDeleteBookmark(bookmark.id)}
-                className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-300 hover:scale-110"
+                className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                  isDarkMode ? "bg-black border-white" : "bg-white border-black"
+                }`}
               >
-                <Trash2 className="w-4 h-4 text-red-600" />
+                <Trash2 className="w-4 h-4 text-red-600 pixelated" />
               </button>
             </div>
           </div>
@@ -379,10 +402,17 @@ export default function BookmarkManager() {
       </div>
     )
   }
+
   const BookmarkListItem = ({ bookmark }: { bookmark: Bookmark }) => {
     const folderColor = getFolderColor(bookmark.folderId || "Other")
     return (
-      <div className="relative bg-white/70 backdrop-blur-lg rounded-xl p-4 shadow-lg border border-white/20 hover:border-white/40">
+      <div
+        className={`relative p-4 border-2 shadow-[8px_8px_0_0] transition-all duration-200 steps-4 hover:scale-105 ${
+          isDarkMode
+            ? "bg-black text-white border-white shadow-white"
+            : "bg-white text-black border-black shadow-black"
+        }`}
+      >
         <div className="flex items-center gap-4">
           {showCheckboxes && (
             <input
@@ -397,39 +427,41 @@ export default function BookmarkManager() {
                   )
                 }
               }}
-              className="w-4 h-4 rounded border-2 border-gray-300 checked:bg-blue-500 transition-all duration-300"
+              className={`w-4 h-4 border-2 transition-all duration-200 ${
+                isDarkMode
+                  ? "bg-black border-white checked:bg-white checked:border-white"
+                  : "bg-white border-black checked:bg-black checked:border-black"
+              }`}
             />
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               {bookmark.favorite && (
-                <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                <Star className="w-4 h-4 text-yellow-500 fill-current pixelated" />
               )}
-              <h3 className="font-medium text-gray-800 truncate">
-                {bookmark.title}
-              </h3>
+              <h3 className="font-medium truncate">{bookmark.title}</h3>
               <span
-                className="text-xs px-2 py-1 rounded-full"
+                className="text-xs px-2 py-1 border-2"
                 style={{
                   background: folderColor.background,
                   color: folderColor.text,
+                  borderColor: isDarkMode ? "white" : "black",
                 }}
               >
                 {folders.find((f) => f.id === bookmark.folderId)?.title ||
                   "Other"}
               </span>
             </div>
-            <p className="text-sm text-gray-600 truncate">
-              {bookmark.description}
-            </p>
+            <p className="text-sm truncate">{bookmark.description}</p>
             <div className="flex flex-wrap gap-2 mt-2">
               {bookmark.tags?.map((tag, index) => (
                 <span
                   key={index}
-                  className="text-xs px-2 py-1 rounded-full shadow-md"
+                  className="text-xs px-2 py-1 border-2"
                   style={{
                     background: folderColor.background,
                     color: folderColor.text,
+                    borderColor: isDarkMode ? "white" : "black",
                   }}
                 >
                   {tag}
@@ -442,19 +474,25 @@ export default function BookmarkManager() {
               href={bookmark.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors duration-300"
+              className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
             >
-              <ExternalLink className="w-4 h-4 text-blue-600" />
+              <ExternalLink className="w-4 h-4 pixelated" />
             </a>
             <button
               onClick={() => toggleFavorite(bookmark.id)}
-              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
+              className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
             >
               <Star
-                className={`w-4 h-4 ${
+                className={`w-4 h-4 pixelated ${
                   bookmark.favorite
                     ? "text-yellow-500 fill-current"
-                    : "text-gray-400"
+                    : isDarkMode
+                    ? "text-white"
+                    : "text-black"
                 }`}
               />
             </button>
@@ -463,15 +501,19 @@ export default function BookmarkManager() {
                 setRenameBookmarkId(bookmark.id)
                 setRenameValue(bookmark.title || "")
               }}
-              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
+              className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
             >
-              <Edit3 className="w-4 h-4 text-gray-600" />
+              <Edit3 className="w-4 h-4 pixelated" />
             </button>
             <button
               onClick={() => handleDeleteBookmark(bookmark.id)}
-              className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-300"
+              className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
             >
-              <Trash2 className="w-4 h-4 text-red-600" />
+              <Trash2 className="w-4 h-4 text-red-600 pixelated" />
             </button>
           </div>
         </div>
@@ -480,84 +522,127 @@ export default function BookmarkManager() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 relative overflow-hidden rounded-2xl">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
+    <div
+      className={`min-h-screen ${
+        isDarkMode ? "bg-black text-white" : "bg-white text-black"
+      }`}
+    >
       <div className="relative z-10 container mx-auto px-6 py-8 max-w-7xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-blue-600 bg-clip-text text-transparent mb-4">
-            Bookmark Manager
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-6xl font-bold">Bookmark Manager</h1>
+          <p className="text-xl mt-2">
             Organize your digital life with style and efficiency
           </p>
         </div>
-        <div className="bg-white/60 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/20 mb-8">
+        <div
+          className={`p-6 border-2 shadow-[8px_8px_0_0] mb-8 transition-all duration-200 steps-4 ${
+            isDarkMode
+              ? "bg-black border-white shadow-white"
+              : "bg-white border-black shadow-black"
+          }`}
+        >
           <div className="flex flex-wrap items-center gap-4 mb-6">
             <div className="relative flex-1 min-w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search
+                className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated ${
+                  isDarkMode ? "text-white" : "text-black"
+                }`}
+              />
               <input
                 type="text"
                 placeholder="Search bookmarks..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-12 py-3 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
+                className={`w-full pl-10 pr-12 py-3 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white placeholder-gray-400"
+                    : "bg-white text-black border-black placeholder-gray-500"
+                }`}
               />
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full transition-colors duration-200"
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                    isDarkMode
+                      ? "bg-black border-white"
+                      : "bg-white border-black"
+                  }`}
                 >
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 pixelated" />
                 </button>
               )}
             </div>
-            <div className="flex bg-white/50 rounded-2xl p-1">
+            <div
+              className={`flex p-1 border-2 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
+            >
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-3 rounded-xl transition-all duration-300 ${
+                className={`p-3 border-2 transition-all duration-200 steps-4 hover:scale-105 ${
                   viewMode === "grid"
-                    ? "bg-white shadow-lg text-blue-600"
-                    : "text-gray-600 hover:text-blue-600"
+                    ? isDarkMode
+                      ? "bg-white text-black border-white"
+                      : "bg-black text-white border-black"
+                    : isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
                 }`}
               >
-                <Grid className="w-5 h-5" />
+                <Grid className="w-5 h-5 pixelated" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-3 rounded-xl transition-all duration-300 ${
+                className={`p-3 border-2 transition-all duration-200 steps-4 hover:scale-105 ${
                   viewMode === "list"
-                    ? "bg-white shadow-lg text-blue-600"
-                    : "text-gray-600 hover:text-blue-600"
+                    ? isDarkMode
+                      ? "bg-white text-black border-white"
+                      : "bg-black text-white border-black"
+                    : isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
                 }`}
               >
-                <List className="w-5 h-5" />
+                <List className="w-5 h-5 pixelated" />
               </button>
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-3 bg-white/70 rounded-2xl hover:bg-white/90 transition-all duration-300 text-gray-700 font-medium"
+              className={`flex items-center gap-2 px-4 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                isDarkMode
+                  ? "bg-black text-white border-white"
+                  : "bg-white text-black border-black"
+              }`}
             >
-              <Filter className="w-5 h-5" />
+              <Filter className="w-5 h-5 pixelated" />
               Filters
             </button>
             <button
               onClick={() => setShowCreateFolder(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 font-medium"
+              className={`flex items-center gap-2 px-4 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                isDarkMode
+                  ? "bg-black text-white border-white"
+                  : "bg-white text-black border-black"
+              }`}
             >
-              <FolderPlus className="w-5 h-5" />
+              <FolderPlus className="w-5 h-5 pixelated" />
               New Folder
             </button>
           </div>
           {showFilters && (
-            <div className="flex flex-wrap items-center gap-4 p-4 bg-white/40 rounded-2xl border border-white/30 animate-in slide-in-from-top-2 duration-300">
+            <div
+              className={`flex flex-wrap items-center gap-4 p-4 border-2 animate-in slide-in-from-top-2 duration-200 steps-4 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
+            >
               <select
                 value={selectedFolder}
                 onChange={(e) => setSelectedFolder(e.target.value)}
-                className="px-4 py-2 bg-white/70 rounded-xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
+                className={`px-4 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                }`}
               >
                 <option value="">All Folders</option>
                 {folders.map((folder) => (
@@ -569,7 +654,11 @@ export default function BookmarkManager() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 bg-white/70 rounded-xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
+                className={`px-4 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                }`}
               >
                 <option value="default">Default Order</option>
                 <option value="new">Newest First</option>
@@ -580,12 +669,16 @@ export default function BookmarkManager() {
               </select>
               <button
                 onClick={() => setShowCheckboxes(!showCheckboxes)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/70 rounded-xl hover:bg-white/90 transition-all duration-300 text-gray-700 font-medium"
+                className={`flex items-center gap-2 px-4 py-2 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                }`}
               >
                 {showCheckboxes ? (
-                  <EyeOff className="w-5 h-5" />
+                  <EyeOff className="w-5 h-5 pixelated" />
                 ) : (
-                  <Eye className="w-5 h-5" />
+                  <Eye className="w-5 h-5 pixelated" />
                 )}
                 {showCheckboxes ? "Hide Selection" : "Show Selection"}
               </button>
@@ -594,14 +687,26 @@ export default function BookmarkManager() {
         </div>
         <div className="flex flex-wrap items-center justify-between mb-8">
           <div className="flex items-center gap-6">
-            <div className="bg-white/70 backdrop-blur-xl rounded-2xl px-6 py-3 shadow-lg border border-white/20">
-              <span className="text-2xl font-bold text-blue-600">
+            <div
+              className={`px-6 py-3 border-2 shadow-[8px_8px_0_0] ${
+                isDarkMode
+                  ? "bg-black text-white border-white shadow-white"
+                  : "bg-white text-black border-black shadow-black"
+              }`}
+            >
+              <span className="text-2xl font-bold">
                 {sortedBookmarks.length}
               </span>
-              <span className="text-gray-600 ml-2">bookmarks</span>
+              <span className="ml-2">bookmarks</span>
             </div>
             {selectedBookmarks.length > 0 && (
-              <div className="bg-blue-500 text-white rounded-2xl px-6 py-3 shadow-lg animate-in slide-in-from-left-5 duration-300">
+              <div
+                className={`px-6 py-3 border-2 shadow-[8px_8px_0_0] animate-in slide-in-from-left-5 duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white shadow-white"
+                    : "bg-white text-black border-black shadow-black"
+                }`}
+              >
                 <span className="font-medium">
                   {selectedBookmarks.length} selected
                 </span>
@@ -618,7 +723,11 @@ export default function BookmarkManager() {
                       : sortedBookmarks.map((bm) => bm.id)
                   )
                 }
-                className="flex items-center gap-2 px-4 py-2 bg-white/70 rounded-xl hover:bg-white/90 transition-all duration-300 text-gray-700"
+                className={`px-4 py-2 border-2 hover:scale-105 transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                }`}
               >
                 {selectedBookmarks.length === sortedBookmarks.length
                   ? "Deselect All"
@@ -627,9 +736,13 @@ export default function BookmarkManager() {
               {selectedBookmarks.length > 0 && (
                 <button
                   onClick={() => setAddToFolderBookmarkId(selectedBookmarks[0])}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
+                  className={`flex items-center gap-2 px-4 py-2 border-2 hover:scale-105 transition-all duration-200 steps-4 ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  }`}
                 >
-                  <Folder className="w-5 h-5" />
+                  <Folder className="w-5 h-5 pixelated" />
                   Move to Folder
                 </button>
               )}
@@ -659,44 +772,64 @@ export default function BookmarkManager() {
         </div>
         {sortedBookmarks.length === 0 && (
           <div className="text-center py-16">
-            <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
-              <Search className="w-16 h-16 text-gray-400" />
+            <div
+              className={`w-32 h-32 mx-auto mb-6 border-2 flex items-center justify-center ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
+            >
+              <Search className="w-16 h-16 pixelated" />
             </div>
-            <h3 className="text-2xl font-semibold text-gray-600 mb-2">
-              No bookmarks found
-            </h3>
-            <p className="text-gray-500">
-              Try adjusting your search or filters
-            </p>
+            <h3 className="text-2xl font-semibold mb-2">No bookmarks found</h3>
+            <p>Try adjusting your search or filters</p>
           </div>
         )}
       </div>
       {renameBookmarkId && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-300">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20 animate-in zoom-in-95 duration-300">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">
-              Rename Bookmark
-            </h3>
+        <div
+          className={`fixed inset-0 flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-200 steps-4 ${
+            isDarkMode ? "bg-white/50" : "bg-black/50"
+          }`}
+        >
+          <div
+            className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+              isDarkMode
+                ? "bg-black text-white border-white shadow-white"
+                : "bg-white text-black border-black shadow-black"
+            }`}
+          >
+            <h3 className="text-2xl font-bold mb-6">Rename Bookmark</h3>
             <div className="space-y-4">
               <input
                 type="text"
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
+                className={`w-full px-4 py-3 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white placeholder-gray-400"
+                    : "bg-white text-black border-black placeholder-gray-500"
+                }`}
                 placeholder="Enter new name..."
                 maxLength={255}
               />
               <div className="flex gap-3">
                 <button
                   onClick={handleRenameSave}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 font-medium"
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  }`}
                 >
-                  <Check className="w-5 h-5" />
+                  <Check className="w-5 h-5 pixelated" />
                   Save
                 </button>
                 <button
                   onClick={() => setRenameBookmarkId(null)}
-                  className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-2xl transition-all duration-300 font-medium"
+                  className={`flex-1 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  }`}
                 >
                   Cancel
                 </button>
@@ -706,16 +839,28 @@ export default function BookmarkManager() {
         </div>
       )}
       {addToFolderBookmarkId && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-300">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20 animate-in zoom-in-95 duration-300">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">
-              Move to Folder
-            </h3>
+        <div
+          className={`fixed inset-0 flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-200 steps-4 ${
+            isDarkMode ? "bg-white/50" : "bg-black/50"
+          }`}
+        >
+          <div
+            className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+              isDarkMode
+                ? "bg-black text-white border-white shadow-white"
+                : "bg-white text-black border-black shadow-black"
+            }`}
+          >
+            <h3 className="text-2xl font-bold mb-6">Move to Folder</h3>
             <div className="space-y-4">
               <select
                 value={selectedFolder}
                 onChange={(e) => setSelectedFolder(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
+                className={`w-full px-4 py-3 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                }`}
               >
                 <option value="">Select Folder</option>
                 {folders.map((folder) => (
@@ -724,12 +869,16 @@ export default function BookmarkManager() {
                   </option>
                 ))}
               </select>
-              <div className="text-center text-gray-500">or</div>
+              <div className="text-center">or</div>
               <input
                 type="text"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
+                className={`w-full px-4 py-3 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white placeholder-gray-400"
+                    : "bg-white text-black border-black placeholder-gray-500"
+                }`}
                 placeholder="Create new folder..."
               />
               <div className="flex flex-wrap gap-2">
@@ -737,10 +886,14 @@ export default function BookmarkManager() {
                   <button
                     key={color}
                     onClick={() => setNewFolderColor(color)}
-                    className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                    className={`w-8 h-8 border-2 transition-all duration-200 steps-4 ${
                       newFolderColor === color
-                        ? "border-blue-500 scale-110"
-                        : "border-white/30"
+                        ? isDarkMode
+                          ? "border-white scale-110"
+                          : "border-black scale-110"
+                        : isDarkMode
+                        ? "border-white"
+                        : "border-black"
                     }`}
                     style={{ backgroundColor: color }}
                   />
@@ -750,14 +903,18 @@ export default function BookmarkManager() {
                 type="color"
                 value={newFolderColor}
                 onChange={(e) => setNewFolderColor(e.target.value)}
-                className="w-full h-12 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="w-full h-12 border-2 focus:outline-none transition-all duration-200 steps-4"
               />
               <div className="flex gap-3">
                 <button
                   onClick={handleAddToFolderSave}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-medium"
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  }`}
                 >
-                  <Check className="w-5 h-5" />
+                  <Check className="w-5 h-5 pixelated" />
                   Save
                 </button>
                 <button
@@ -765,7 +922,11 @@ export default function BookmarkManager() {
                     setAddToFolderBookmarkId(null)
                     setNewFolderColor("#6B7280")
                   }}
-                  className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-2xl transition-all duration-300 font-medium"
+                  className={`flex-1 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  }`}
                 >
                   Cancel
                 </button>
@@ -775,33 +936,47 @@ export default function BookmarkManager() {
         </div>
       )}
       {showCreateFolder && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-300">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20 animate-in zoom-in-95 duration-300">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">
-              Create New Folder
-            </h3>
+        <div
+          className={`fixed inset-0 flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-200 steps-4 ${
+            isDarkMode ? "bg-white/50" : "bg-black/50"
+          }`}
+        >
+          <div
+            className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+              isDarkMode
+                ? "bg-black text-white border-white shadow-white"
+                : "bg-white text-black border-black shadow-black"
+            }`}
+          >
+            <h3 className="text-2xl font-bold mb-6">Create New Folder</h3>
             <div className="space-y-4">
               <input
                 type="text"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-gray-700"
+                className={`w-full px-4 py-3 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                  isDarkMode
+                    ? "bg-black text-white border-white placeholder-gray-400"
+                    : "bg-white text-black border-black placeholder-gray-500"
+                }`}
                 placeholder="Enter folder name..."
                 maxLength={100}
               />
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">
-                  Folder Color
-                </label>
+                <label className="text-sm font-semibold">Folder Color</label>
                 <div className="flex flex-wrap gap-2">
                   {colorPalette.map((color) => (
                     <button
                       key={color}
                       onClick={() => setNewFolderColor(color)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                      className={`w-8 h-8 border-2 transition-all duration-200 steps-4 ${
                         newFolderColor === color
-                          ? "border-blue-500 scale-110"
-                          : "border-white/30"
+                          ? isDarkMode
+                            ? "border-white scale-110"
+                            : "border-black scale-110"
+                          : isDarkMode
+                          ? "border-white"
+                          : "border-black"
                       }`}
                       style={{ backgroundColor: color }}
                     />
@@ -811,20 +986,24 @@ export default function BookmarkManager() {
                   type="color"
                   value={newFolderColor}
                   onChange={(e) => setNewFolderColor(e.target.value)}
-                  className="w-full h-12 rounded-2xl border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full h-12 border-2 focus:outline-none transition-all duration-200 steps-4"
                 />
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={handleCreateFolder}
                   disabled={!newFolderName.trim()}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl transition-all duration-300 font-medium ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
                     newFolderName.trim()
-                      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? isDarkMode
+                        ? "bg-black text-white border-white"
+                        : "bg-white text-black border-black"
+                      : isDarkMode
+                      ? "bg-gray-700 text-gray-400 border-gray-700 cursor-not-allowed"
+                      : "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
                   }`}
                 >
-                  <Check className="w-5 h-5" />
+                  <Check className="w-5 h-5 pixelated" />
                   Create
                 </button>
                 <button
@@ -833,7 +1012,11 @@ export default function BookmarkManager() {
                     setNewFolderName("")
                     setNewFolderColor("#6B7280")
                   }}
-                  className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-2xl transition-all duration-300 font-medium"
+                  className={`flex-1 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  }`}
                 >
                   Cancel
                 </button>
@@ -844,41 +1027,14 @@ export default function BookmarkManager() {
       )}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-2xl hover:shadow-blue-500/25 hover:scale-110 transition-all duration-300 z-40"
+        className={`fixed right-8 p-4 border-2 shadow-[8px_8px_0_0] hover:scale-110 transition-all duration-200 steps-4 z-40 ${
+          isDarkMode
+            ? "bg-black text-white border-white shadow-white"
+            : "bg-white text-black border-black shadow-black"
+        } ${isChatbotVisible ? "bottom-18" : "bottom-4"}`}
       >
-        <ChevronUp className="w-6 h-6" />
+        <ChevronUp className="w-6 h-6 pixelated" />
       </button>
-      <style jsx>{`
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      `}</style>
     </div>
   )
 }

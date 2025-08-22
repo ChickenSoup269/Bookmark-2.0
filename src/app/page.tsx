@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, JSX } from "react"
 import { motion, useInView, useAnimation } from "framer-motion"
 import {
   Bookmark,

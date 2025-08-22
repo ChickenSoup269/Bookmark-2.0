@@ -14,6 +14,7 @@ import {
   Folder,
   ChevronDown,
 } from "lucide-react"
+import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 
 type Folder = {
   id: string
@@ -22,6 +23,7 @@ type Folder = {
 }
 
 export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
+  const { isDarkMode } = useTheme()
   const [title, setTitle] = useState("")
   const [url, setUrl] = useState("")
   const [description, setDescription] = useState("")
@@ -115,23 +117,43 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
     <div className="relative mb-8">
       {/* Success/Error Messages */}
       {success && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl animate-in slide-in-from-top-2 duration-500">
+        <div
+          className={`mb-6 p-4 border-2 shadow-[8px_8px_0_0] animate-in slide-in-from-top-2 duration-200 steps-4 ${
+            isDarkMode
+              ? "bg-black text-white border-white shadow-white"
+              : "bg-white text-black border-black shadow-black"
+          }`}
+        >
           <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <Check className="w-4 h-4 text-white" />
+            <div
+              className={`w-8 h-8 border-2 flex items-center justify-center ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
+            >
+              <Check className="w-4 h-4 pixelated" />
             </div>
-            <p className="text-green-800 font-medium">{success}</p>
+            <p className="font-medium">{success}</p>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-blue-50 border border-red-200 rounded-2xl animate-in slide-in-from-top-2 duration-500">
+        <div
+          className={`mb-6 p-4 border-2 shadow-[8px_8px_0_0] animate-in slide-in-from-top-2 duration-200 steps-4 ${
+            isDarkMode
+              ? "bg-black text-white border-white shadow-white"
+              : "bg-white text-black border-black shadow-black"
+          }`}
+        >
           <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-              <X className="w-4 h-4 text-white" />
+            <div
+              className={`w-8 h-8 border-2 flex items-center justify-center ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
+            >
+              <X className="w-4 h-4 pixelated" />
             </div>
-            <p className="text-red-800 font-medium">{error}</p>
+            <p className="font-medium">{error}</p>
           </div>
         </div>
       )}
@@ -140,21 +162,34 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="group relative w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded-3xl p-6 shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+          className={`group relative w-full p-6 border-2 shadow-[8px_8px_0_0] transition-all duration-200 steps-4 hover:scale-105 ${
+            isDarkMode
+              ? "bg-black text-white border-white shadow-white"
+              : "bg-white text-black border-black shadow-black"
+          }`}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <div className="absolute top-4 right-4 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
-            <Sparkles className="w-6 h-6 animate-pulse" />
+          <div
+            className={`absolute top-4 right-4 transition-opacity duration-200 ${
+              isDarkMode ? "text-white" : "text-black"
+            }`}
+          >
+            <Sparkles className="w-6 h-6 pixelated" />
           </div>
           <div className="relative z-10 flex items-center justify-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+            <div
+              className={`w-12 h-12 border-2 flex items-center justify-center group-hover:scale-110 transition-transform duration-200 steps-4 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
+            >
+              <Plus
+                className={`w-6 h-6 pixelated group-hover:rotate-90 transition-transform duration-200 steps-4 ${
+                  isDarkMode ? "text-white" : "text-black"
+                }`}
+              />
             </div>
             <div className="text-left">
               <h3 className="text-xl font-bold mb-1">Thêm Bookmark Mới</h3>
-              <p className="text-white/80 text-sm">
-                Lưu trữ trang web yêu thích của bạn
-              </p>
+              <p className="text-sm">Lưu trữ trang web yêu thích của bạn</p>
             </div>
           </div>
         </button>
@@ -162,17 +197,25 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 animate-in slide-in-from-top-5 duration-500">
+        <div
+          className={`p-8 border-2 shadow-[8px_8px_0_0] animate-in slide-in-from-top-5 duration-200 steps-4 ${
+            isDarkMode
+              ? "bg-black text-white border-white shadow-white"
+              : "bg-white text-black border-black shadow-black"
+          }`}
+        >
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-white" />
+              <div
+                className={`w-12 h-12 border-2 flex items-center justify-center ${
+                  isDarkMode ? "bg-black border-white" : "bg-white border-black"
+                }`}
+              >
+                <BookOpen className="w-6 h-6 pixelated" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-800">
-                  Thêm Bookmark Mới
-                </h3>
-                <p className="text-gray-600">Điền thông tin để lưu trang web</p>
+                <h3 className="text-2xl font-bold">Thêm Bookmark Mới</h3>
+                <p>Điền thông tin để lưu trang web</p>
               </div>
             </div>
             <button
@@ -188,35 +231,45 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                 setTagInput("")
                 setIsTagDropdownOpen(false)
               }}
-              className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200"
+              className={`p-2 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                isDarkMode ? "bg-black border-white" : "bg-white border-black"
+              }`}
             >
-              <X className="w-6 h-6 text-gray-500" />
+              <X className="w-6 h-6 pixelated" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form className="space-y-6">
             {/* Title Input */}
             <div className="group">
               <label
                 htmlFor="title"
-                className="block text-sm font-semibold text-gray-700 mb-2"
+                className="block text-sm font-semibold mb-2"
               >
                 Tiêu đề *
               </label>
               <div className="relative">
-                <Type className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-purple-500 transition-colors duration-300" />
+                <Type
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated ${
+                    isDarkMode ? "text-white" : "text-black"
+                  } group-focus-within:text-purple-500`}
+                />
                 <input
                   id="title"
                   type="text"
                   placeholder="Nhập tiêu đề bookmark..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white/70 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
+                  className={`w-full pl-12 pr-4 py-4 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                    isDarkMode
+                      ? "bg-black text-white border-white placeholder-gray-400"
+                      : "bg-white text-black border-black placeholder-gray-500"
+                  }`}
                   required
                 />
                 {title && (
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <Check className="w-5 h-5 text-green-500" />
+                    <Check className="w-5 h-5 text-green-500 pixelated" />
                   </div>
                 )}
               </div>
@@ -224,36 +277,41 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
 
             {/* URL Input */}
             <div className="group">
-              <label
-                htmlFor="url"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
+              <label htmlFor="url" className="block text-sm font-semibold mb-2">
                 URL *
               </label>
               <div className="relative">
-                <Globe className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-purple-500 transition-colors duration-300" />
+                <Globe
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated ${
+                    isDarkMode ? "text-white" : "text-black"
+                  } group-focus-within:text-purple-500`}
+                />
                 <input
                   id="url"
                   type="url"
                   placeholder="https://example.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white/70 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
+                  className={`w-full pl-12 pr-4 py-4 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                    isDarkMode
+                      ? "bg-black text-white border-white placeholder-gray-400"
+                      : "bg-white text-black border-black placeholder-gray-500"
+                  }`}
                   required
                 />
                 {url && (
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                     {validateUrl(url) ? (
-                      <Check className="w-5 h-5 text-green-500" />
+                      <Check className="w-5 h-5 text-green-500 pixelated" />
                     ) : (
-                      <X className="w-5 h-5 text-red-500" />
+                      <X className="w-5 h-5 text-red-500 pixelated" />
                     )}
                   </div>
                 )}
               </div>
               {url && !validateUrl(url) && (
                 <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 pixelated" />
                   URL không hợp lệ
                 </p>
               )}
@@ -263,12 +321,16 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
             <div className="group">
               <label
                 htmlFor="description"
-                className="block text-sm font-semibold text-gray-700 mb-2"
+                className="block text-sm font-semibold mb-2"
               >
                 Mô tả
               </label>
               <div className="relative">
-                <FileText className="absolute left-4 top-4 text-gray-400 w-5 h-5 group-focus-within:text-purple-500 transition-colors duration-300" />
+                <FileText
+                  className={`absolute left-4 top-4 w-5 h-5 pixelated ${
+                    isDarkMode ? "text-white" : "text-black"
+                  } group-focus-within:text-purple-500`}
+                />
                 <textarea
                   id="description"
                   placeholder="Mô tả ngắn về trang web này..."
@@ -276,9 +338,17 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   maxLength={200}
-                  className="w-full pl-12 pr-4 py-4 bg-white/70 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500 resize-none"
+                  className={`w-full pl-12 pr-4 py-4 border-2 focus:outline-none transition-all duration-200 steps-4 resize-none ${
+                    isDarkMode
+                      ? "bg-black text-white border-white placeholder-gray-400"
+                      : "bg-white text-black border-black placeholder-gray-500"
+                  }`}
                 />
-                <div className="absolute right-4 bottom-4 text-xs text-gray-400">
+                <div
+                  className={`absolute right-4 bottom-4 text-xs ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   {description.length}/200
                 </div>
               </div>
@@ -288,17 +358,25 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
             <div className="group">
               <label
                 htmlFor="folder"
-                className="block text-sm font-semibold text-gray-700 mb-2"
+                className="block text-sm font-semibold mb-2"
               >
                 Thư mục
               </label>
               <div className="relative">
-                <Folder className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-purple-500 transition-colors duration-300" />
+                <Folder
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated ${
+                    isDarkMode ? "text-white" : "text-black"
+                  } group-focus-within:text-purple-500`}
+                />
                 <select
                   id="folder"
                   value={folderId}
                   onChange={(e) => setFolderId(e.target.value)}
-                  className="w-full pl-12 pr-10 py-4 bg-white/70 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700 appearance-none"
+                  className={`w-full pl-12 pr-10 py-4 border-2 focus:outline-none transition-all duration-200 steps-4 appearance-none ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  }`}
                 >
                   <option value="">Chọn thư mục (mặc định: Other)</option>
                   {folders.map((folder) => (
@@ -308,14 +386,18 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                       className="flex items-center"
                     >
                       <span
-                        className="mr-2 w-4 h-4 rounded-full inline-block"
+                        className="mr-2 w-4 h-4 inline-block"
                         style={{ backgroundColor: folder.color }}
                       ></span>
                       {folder.title}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                <ChevronDown
+                  className={`absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated pointer-events-none ${
+                    isDarkMode ? "text-white" : "text-black"
+                  }`}
+                />
               </div>
             </div>
 
@@ -323,12 +405,16 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
             <div className="group">
               <label
                 htmlFor="tags"
-                className="block text-sm font-semibold text-gray-700 mb-2"
+                className="block text-sm font-semibold mb-2"
               >
                 Tags
               </label>
               <div className="relative">
-                <Link className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-purple-500 transition-colors duration-300" />
+                <Link
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated ${
+                    isDarkMode ? "text-white" : "text-black"
+                  } group-focus-within:text-purple-500`}
+                />
                 <input
                   id="tags"
                   type="text"
@@ -340,22 +426,36 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                       handleAddTag(tagInput.trim())
                     }
                   }}
-                  className="w-full pl-12 pr-12 py-4 bg-white/70 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
+                  className={`w-full pl-12 pr-12 py-4 border-2 focus:outline-none transition-all duration-200 steps-4 ${
+                    isDarkMode
+                      ? "bg-black text-white border-white placeholder-gray-400"
+                      : "bg-white text-black border-black placeholder-gray-500"
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full transition-colors duration-200"
+                  className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-1 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                    isDarkMode
+                      ? "bg-black border-white"
+                      : "bg-white border-black"
+                  }`}
                 >
                   <ChevronDown
-                    className={`w-5 h-5 text-gray-400 ${
+                    className={`w-5 h-5 pixelated ${
                       isTagDropdownOpen ? "rotate-180" : ""
-                    } transition-transform duration-200`}
+                    } transition-transform duration-200 steps-4`}
                   />
                 </button>
               </div>
               {isTagDropdownOpen && (
-                <div className="mt-2 bg-white/90 rounded-2xl shadow-lg border border-gray-200 max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-300">
+                <div
+                  className={`mt-2 border-2 shadow-[8px_8px_0_0] max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-200 steps-4 ${
+                    isDarkMode
+                      ? "bg-black border-white shadow-white"
+                      : "bg-white border-black shadow-black"
+                  }`}
+                >
                   {suggestedTags.map((tag) => (
                     <button
                       key={tag}
@@ -364,8 +464,14 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                         handleAddTag(tag)
                         setIsTagDropdownOpen(false)
                       }}
-                      className={`w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 ${
-                        tags.includes(tag) ? "bg-blue-100 text-blue-600" : ""
+                      className={`w-full text-left px-4 py-2 text-sm transition-all duration-200 steps-4 ${
+                        tags.includes(tag)
+                          ? isDarkMode
+                            ? "bg-white text-black"
+                            : "bg-black text-white"
+                          : isDarkMode
+                          ? "bg-black text-white hover:bg-white hover:text-black"
+                          : "bg-white text-black hover:bg-black hover:text-white"
                       }`}
                     >
                       {tag}
@@ -377,14 +483,18 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-xs px-2 py-1 rounded-full bg-blue-500 text-white flex items-center gap-1"
+                    className={`text-xs px-2 py-1 border-2 flex items-center gap-1 ${
+                      isDarkMode
+                        ? "bg-black text-white border-white"
+                        : "bg-white text-black border-black"
+                    }`}
                   >
                     {tag}
                     <button
                       onClick={() => handleRemoveTag(tag)}
-                      className="hover:bg-blue-600 rounded-full p-1"
+                      className="hover:scale-110 transition-all duration-200 steps-4"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3 h-3 pixelated" />
                     </button>
                   </span>
                 ))}
@@ -406,7 +516,11 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
                   setIsTagDropdownOpen(false)
                   setError(null)
                 }}
-                className="flex-1 py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02]"
+                className={`flex-1 py-4 px-6 border-2 hover:scale-105 transition-all duration-200 steps-4 font-semibold ${
+                  isDarkMode
+                    ? "bg-black text-white border-white"
+                    : "bg-white text-black border-black"
+                } ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
                 disabled={isLoading}
               >
                 Hủy
@@ -415,20 +529,31 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
               <button
                 type="submit"
                 disabled={!isFormValid || isLoading}
-                className={`flex-1 py-4 px-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 ${
+                onClick={handleSubmit}
+                className={`flex-1 py-4 px-6 border-2 hover:scale-105 transition-all duration-200 steps-4 font-semibold flex items-center justify-center gap-3 ${
                   isFormValid && !isLoading
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-purple-500/25"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    ? isDarkMode
+                      ? "bg-white text-black border-white"
+                      : "bg-black text-white border-black"
+                    : isDarkMode
+                    ? "bg-gray-700 text-gray-400 border-gray-700 cursor-not-allowed"
+                    : "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
                 }`}
               >
                 {isLoading ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <div
+                      className={`w-5 h-5 border-2 border-t-transparent animate-spin ${
+                        isDarkMode
+                          ? "border-white"
+                          : "border-black border-t-black"
+                      }`}
+                    ></div>
                     Đang thêm...
                   </>
                 ) : (
                   <>
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-5 h-5 pixelated" />
                     Thêm Bookmark
                   </>
                 )}
@@ -437,24 +562,29 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
           </form>
 
           {/* Progress indicator */}
-          <div className="mt-6 bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div className="mt-6 h-2 border-2 overflow-hidden">
             <div
-              className={`h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500 ${
-                title ? "w-1/4" : "w-0"
-              } ${title && url && validateUrl(url) ? "w-2/4" : ""} ${
-                title && url && validateUrl(url) && description ? "w-3/4" : ""
-              } ${
-                title &&
-                url &&
-                validateUrl(url) &&
-                description &&
-                (folderId || tags.length)
-                  ? "w-full"
-                  : ""
-              }`}
+              className={`h-full bg-purple-500 transition-all duration-200 steps-4`}
+              style={{
+                width: `${
+                  title
+                    ? title && url && validateUrl(url)
+                      ? title && url && validateUrl(url) && description
+                        ? title &&
+                          url &&
+                          validateUrl(url) &&
+                          description &&
+                          (folderId || tags.length)
+                          ? "100%"
+                          : "75%"
+                        : "50%"
+                      : "25%"
+                    : "0%"
+                }`,
+              }}
             ></div>
           </div>
-          <p className="text-xs text-gray-500 text-center mt-2">
+          <p className="text-xs text-center mt-2">
             {!title && !url
               ? "Bắt đầu bằng cách nhập tiêu đề và URL"
               : title && !url
@@ -474,25 +604,6 @@ export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
           </p>
         </div>
       )}
-
-      {/* Floating particles effect */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-10 left-10 w-2 h-2 bg-purple-400 rounded-full opacity-30 animate-ping animation-delay-1000"></div>
-        <div className="absolute top-20 right-20 w-1 h-1 bg-pink-400 rounded-full opacity-40 animate-ping animation-delay-2000"></div>
-        <div className="absolute bottom-10 left-1/3 w-1.5 h-1.5 bg-blue-400 rounded-full opacity-25 animate-ping animation-delay-3000"></div>
-      </div>
-
-      <style jsx>{`
-        .animation-delay-1000 {
-          animation-delay: 1s;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-3000 {
-          animation-delay: 3s;
-        }
-      `}</style>
     </div>
   )
 }
