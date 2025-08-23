@@ -3,12 +3,10 @@
 import { useState, useEffect } from "react"
 import {
   Search,
-  Plus,
   FolderPlus,
   Grid,
   List,
   Filter,
-  ChevronUp,
   Star,
   ExternalLink,
   Edit3,
@@ -31,7 +29,7 @@ import {
 } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import BookmarkForm from "@/components/ui-controls/add"
-import DeleteFolder from "@/components/ui-controls/deleteFolder"
+import DeleteFolder from "@/components/ui-controls/DeleteFolder"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 
 type Bookmark = {
@@ -555,8 +553,6 @@ export default function BookmarkManager() {
           }`}
         >
           <div className="flex flex-wrap items-center gap-4 mb-6">
-            <BookmarkForm onAdd={() => router.refresh()} folders={folders} />
-            <DeleteFolder onDelete={() => router.refresh()} folders={folders} />
             <div className="relative flex-1 min-w-80">
               <Search
                 className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated ${
@@ -727,6 +723,13 @@ export default function BookmarkManager() {
                 </span>
               </div>
             )}
+          </div>
+          <div className="flex justify-end mb-4">
+            <BookmarkForm onAdd={() => router.refresh()} folders={folders} />
+            <DeleteFolder
+              onFolderDelete={() => router.refresh()}
+              folders={folders}
+            />
           </div>
           {showCheckboxes && (
             <div className="flex items-center gap-4">

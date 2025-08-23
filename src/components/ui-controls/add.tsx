@@ -61,11 +61,15 @@ export default function BookmarkForm({
       return
     }
 
+    if (!auth.currentUser) {
+      setError("Bạn cần đăng nhập để thêm bookmark.")
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
     try {
-      if (!auth.currentUser) throw new Error("User not authenticated")
       await addDoc(collection(db, `users/${auth.currentUser.uid}/bookmarks`), {
         title,
         url,
@@ -135,7 +139,7 @@ export default function BookmarkForm({
   const isFormValid = title.trim() && url.trim() && validateUrl(url)
 
   return (
-    <div className="relative mb-4">
+    <div className="relative mr-2">
       {/* Toggle Button */}
       {!showForm && (
         <button
@@ -158,7 +162,7 @@ export default function BookmarkForm({
                 }`}
               />
             </div>
-            <span className="text-sm font-semibold">Thêm Bookmark</span>
+            <span className="text-base font-semibold">Thêm Bookmark</span>
             <Sparkles
               className={`w-3 h-3 pixelated ${
                 isDarkMode ? "text-white" : "text-black"
@@ -206,7 +210,7 @@ export default function BookmarkForm({
                   >
                     <Check className="w-3 h-3 pixelated" />
                   </div>
-                  <p className="font-medium text-[10px]">{success}</p>
+                  <p className="font-medium text-xs">{success}</p>
                 </div>
               </div>
             )}
@@ -229,7 +233,7 @@ export default function BookmarkForm({
                   >
                     <X className="w-3 h-3 pixelated" />
                   </div>
-                  <p className="font-medium text-[10px]">{error}</p>
+                  <p className="font-medium text-xs">{error}</p>
                 </div>
               </div>
             )}
@@ -247,8 +251,8 @@ export default function BookmarkForm({
                   <BookOpen className="w-4 h-4 pixelated" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold">Thêm Bookmark Mới</h3>
-                  <p className="text-sm">Điền thông tin để lưu trang web</p>
+                  <h3 className="text-xl font-bold">Thêm Bookmark Mới</h3>
+                  <p className="text-base">Điền thông tin để lưu trang web</p>
                 </div>
               </div>
               <button
@@ -267,7 +271,7 @@ export default function BookmarkForm({
               <div className="group">
                 <label
                   htmlFor="title"
-                  className="block text-xs font-semibold mb-1"
+                  className="block text-base font-semibold mb-1"
                 >
                   Tiêu đề *
                 </label>
@@ -283,7 +287,7 @@ export default function BookmarkForm({
                     placeholder="Nhập tiêu đề bookmark..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-sm ${
+                    className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-base ${
                       isDarkMode
                         ? "bg-black text-white border-white placeholder-gray-400"
                         : "bg-white text-black border-black placeholder-gray-500"
@@ -302,7 +306,7 @@ export default function BookmarkForm({
               <div className="group">
                 <label
                   htmlFor="url"
-                  className="block text-xs font-semibold mb-1"
+                  className="block text-base font-semibold mb-1"
                 >
                   URL *
                 </label>
@@ -318,7 +322,7 @@ export default function BookmarkForm({
                     placeholder="https://example.com"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-sm ${
+                    className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-base ${
                       isDarkMode
                         ? "bg-black text-white border-white placeholder-gray-400"
                         : "bg-white text-black border-black placeholder-gray-500"
@@ -336,7 +340,7 @@ export default function BookmarkForm({
                   )}
                 </div>
                 {url && !validateUrl(url) && (
-                  <p className="text-red-500 text-[10px] mt-1 flex items-center gap-1">
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                     <X className="w-3 h-3 pixelated" />
                     URL không hợp lệ
                   </p>
@@ -347,7 +351,7 @@ export default function BookmarkForm({
               <div className="group">
                 <label
                   htmlFor="description"
-                  className="block text-xs font-semibold mb-1"
+                  className="block text-base font-semibold mb-1"
                 >
                   Mô tả
                 </label>
@@ -364,14 +368,14 @@ export default function BookmarkForm({
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
                     maxLength={200}
-                    className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-sm resize-none ${
+                    className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-base resize-none ${
                       isDarkMode
                         ? "bg-black text-white border-white placeholder-gray-400"
                         : "bg-white text-black border-black placeholder-gray-500"
                     }`}
                   />
                   <div
-                    className={`absolute right-3 bottom-3 text-[10px] ${
+                    className={`absolute right-3 bottom-3 text-xs ${
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
@@ -384,7 +388,7 @@ export default function BookmarkForm({
               <div className="group">
                 <label
                   htmlFor="folder"
-                  className="block text-xs font-semibold mb-1"
+                  className="block text-base font-semibold mb-1"
                 >
                   Thư mục
                 </label>
@@ -398,7 +402,7 @@ export default function BookmarkForm({
                     id="folder"
                     value={folderId}
                     onChange={(e) => setFolderId(e.target.value)}
-                    className={`w-full pl-10 pr-8 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-sm appearance-none ${
+                    className={`w-full pl-10 pr-8 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-base appearance-none ${
                       isDarkMode
                         ? "bg-black text-white border-white"
                         : "bg-white text-black border-black"
@@ -406,15 +410,7 @@ export default function BookmarkForm({
                   >
                     <option value="">Chọn thư mục (mặc định: Other)</option>
                     {folders.map((folder) => (
-                      <option
-                        key={folder.id}
-                        value={folder.id}
-                        className="flex items-center"
-                      >
-                        <span
-                          className="mr-1 w-3 h-3 inline-block"
-                          style={{ backgroundColor: folder.color }}
-                        ></span>
+                      <option key={folder.id} value={folder.id}>
                         {folder.title}
                       </option>
                     ))}
@@ -431,7 +427,7 @@ export default function BookmarkForm({
               <div className="group">
                 <label
                   htmlFor="tags"
-                  className="block text-xs font-semibold mb-1"
+                  className="block text-base font-semibold mb-1"
                 >
                   Tags
                 </label>
@@ -452,7 +448,7 @@ export default function BookmarkForm({
                         handleAddTag(tagInput.trim())
                       }
                     }}
-                    className={`w-full pl-10 pr-8 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-sm ${
+                    className={`w-full pl-10 pr-8 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-base ${
                       isDarkMode
                         ? "bg-black text-white border-white placeholder-gray-400"
                         : "bg-white text-black border-black placeholder-gray-500"
@@ -490,7 +486,7 @@ export default function BookmarkForm({
                           handleAddTag(tag)
                           setIsTagDropdownOpen(false)
                         }}
-                        className={`w-full text-left px-3 py-1 text-[10px] transition-all duration-200 steps-4 ${
+                        className={`w-full text-left px-3 py-1 text-xs transition-all duration-200 steps-4 ${
                           tags.includes(tag)
                             ? isDarkMode
                               ? "bg-white text-black"
@@ -509,7 +505,7 @@ export default function BookmarkForm({
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className={`text-[10px] px-1.5 py-0.5 border-2 flex items-center gap-0.5 ${
+                      className={`text-xs px-1.5 py-0.5 border-2 flex items-center gap-0.5 ${
                         isDarkMode
                           ? "bg-black text-white border-white"
                           : "bg-white text-black border-black"
@@ -532,7 +528,7 @@ export default function BookmarkForm({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className={`flex-1 py-2 px-4 border-2 hover:scale-105 transition-all duration-200 steps-4 font-semibold text-sm ${
+                  className={`flex-1 py-2 px-4 border-2 hover:scale-105 transition-all duration-200 steps-4 font-semibold text-base ${
                     isDarkMode
                       ? "bg-black text-white border-white"
                       : "bg-white text-black border-black"
@@ -546,7 +542,7 @@ export default function BookmarkForm({
                   type="submit"
                   disabled={!isFormValid || isLoading}
                   onClick={handleSubmit}
-                  className={`flex-1 py-2 px-4 border-2 hover:scale-105 transition-all duration-200 steps-4 font-semibold text-sm flex items-center justify-center gap-2 ${
+                  className={`flex-1 py-2 px-4 border-2 hover:scale-105 transition-all duration-200 steps-4 font-semibold text-base flex items-center justify-center gap-2 ${
                     isFormValid && !isLoading
                       ? isDarkMode
                         ? "bg-white text-black border-white"
