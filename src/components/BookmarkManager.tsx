@@ -29,6 +29,9 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
+import { useRouter } from "next/navigation"
+import BookmarkForm from "@/components/ui-controls/add"
+import DeleteFolder from "@/components/ui-controls/deleteFolder"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 
 type Bookmark = {
@@ -63,6 +66,7 @@ const colorPalette = [
 
 export default function BookmarkManager() {
   const { isDarkMode } = useTheme()
+  const router = useRouter()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
   const [selectedFolder, setSelectedFolder] = useState("")
@@ -87,6 +91,15 @@ export default function BookmarkManager() {
     }
     return true
   })
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        router.push("/")
+      }
+    })
+    return unsubscribe
+  }, [router])
 
   // Save isChatbotVisible to localStorage
   useEffect(() => {
@@ -149,7 +162,7 @@ export default function BookmarkManager() {
     }
     if (sortBy === "z-a") {
       return [...bookmarks].sort((a, b) =>
-        (b.title || "").localeCompare(a.title || "")
+        (b.title || "").localeCompare(b.title || "")
       )
     }
     if (sortBy === "favorites") {
@@ -542,6 +555,8 @@ export default function BookmarkManager() {
           }`}
         >
           <div className="flex flex-wrap items-center gap-4 mb-6">
+            <BookmarkForm onAdd={() => router.refresh()} folders={folders} />
+            <DeleteFolder onDelete={() => router.refresh()} folders={folders} />
             <div className="relative flex-1 min-w-80">
               <Search
                 className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 pixelated ${
@@ -1025,16 +1040,6 @@ export default function BookmarkManager() {
           </div>
         </div>
       )}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed right-8 p-4 border-2 shadow-[8px_8px_0_0] hover:scale-110 transition-all duration-200 steps-4 z-40 ${
-          isDarkMode
-            ? "bg-black text-white border-white shadow-white"
-            : "bg-white text-black border-black shadow-black"
-        } ${isChatbotVisible ? "bottom-18" : "bottom-4"}`}
-      >
-        <ChevronUp className="w-6 h-6 pixelated" />
-      </button>
     </div>
   )
 }

@@ -90,7 +90,7 @@ const DesktopNavLinks = ({
   bookmarkCount: number
 }) => (
   <div
-    className={`flex items-center gap-1 p-1 border-2 ${
+    className={`flex items-center gap-1 p-1  ${
       isDarkMode ? "bg-black border-white" : "bg-white border-black"
     }`}
   >
@@ -111,7 +111,7 @@ const DesktopNavLinks = ({
     </Link>
     <Link
       href="/bookmarks"
-      className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+      className={`flex items-center gap-2 p-2 border-2  rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
         pathname === "/bookmarks"
           ? isDarkMode
             ? "bg-white text-black border-white"

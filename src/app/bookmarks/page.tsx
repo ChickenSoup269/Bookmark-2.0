@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { auth } from "@/lib/firebase"
+import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 import BookmarkManager from "@/components/BookmarkManager"
-import BookmarkForm from "@/components/ui-controls/add"
 
 export default function Bookmarks() {
   const router = useRouter()
+  const { isDarkMode } = useTheme()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -23,12 +24,13 @@ export default function Bookmarks() {
   if (loading) return <p>Đang kiểm tra đăng nhập...</p>
 
   return (
-    <div className="group relative bg-white/70 backdrop-blur-lg rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-white/20 overflow-hidden">
-      <BookmarkForm
-        onAdd={function (): void {
-          throw new Error("Function not implemented.")
-        }}
-      />
+    <div
+      className={`relative p-4 border-2 shadow-[8px_8px_0_0] transition-all duration-200 steps-4 ${
+        isDarkMode
+          ? "bg-black text-white border-white shadow-white"
+          : "bg-white text-black border-black shadow-black"
+      }`}
+    >
       <BookmarkManager />
     </div>
   )
