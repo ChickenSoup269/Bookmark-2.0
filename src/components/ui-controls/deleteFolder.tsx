@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Trash2, Check, X, ChevronDown } from "lucide-react"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import { db, auth } from "@/lib/firebase"
+import { doc, deleteDoc } from "firebase/firestore"
 
 type Folder = {
   id: string
@@ -11,10 +13,10 @@ type Folder = {
 }
 
 export default function DeleteFolder({
-  onDelete,
+  onFolderDelete,
   folders,
 }: {
-  onDelete: () => void
+  onFolderDelete: (folderId: string) => void
   folders: Folder[]
 }) {
   const { isDarkMode } = useTheme()
@@ -30,16 +32,24 @@ export default function DeleteFolder({
       return
     }
 
+    if (!auth.currentUser) {
+      setError("Bạn cần đăng nhập để xóa thư mục.")
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
     try {
-      // Simulate API call (no Firestore, UI state only)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Xóa folder khỏi Firestore
+      await deleteDoc(
+        doc(db, `users/${auth.currentUser.uid}/folders`, selectedFolderId)
+      )
+      // Cập nhật UI ngay lập tức
+      onFolderDelete(selectedFolderId)
       setSelectedFolderId("")
       setError(null)
       setSuccess("Thư mục đã được xóa thành công! ✨")
-      onDelete()
 
       setTimeout(() => {
         setSuccess(null)
@@ -203,15 +213,7 @@ export default function DeleteFolder({
                 >
                   <option value="">Chọn thư mục</option>
                   {folders.map((folder) => (
-                    <option
-                      key={folder.id}
-                      value={folder.id}
-                      className="flex items-center"
-                    >
-                      <span
-                        className="mr-1 w-3 h-3 inline-block"
-                        style={{ backgroundColor: folder.color || "#6B7280" }}
-                      ></span>
+                    <option key={folder.id} value={folder.id}>
                       {folder.title}
                     </option>
                   ))}
