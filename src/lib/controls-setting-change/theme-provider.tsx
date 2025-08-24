@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
+import { auth } from "@/lib/firebase"
 
 interface ThemeContextType {
   isDarkMode: boolean
@@ -9,44 +10,56 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export const useTheme = () => {
-  const context = useContext(ThemeContext)
-  if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider")
-  }
-  return context
-}
-
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean | null>(null)
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false)
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme")
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches
-
-    const dark = savedTheme === "dark" || (!savedTheme && prefersDark)
-    setIsDarkMode(dark)
-    document.documentElement.classList.toggle("dark", dark)
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (currentUser) {
+        const savedTheme = localStorage.getItem("isDarkMode")
+        if (savedTheme) {
+          const parsedValue = JSON.parse(savedTheme)
+          setIsDarkMode(parsedValue)
+          console.log(
+            `Theme loaded from localStorage for user ${currentUser.uid}: ${parsedValue}`
+          )
+        } else {
+          setIsDarkMode(false)
+          localStorage.setItem("isDarkMode", JSON.stringify(false))
+          console.log(`Theme set to default for user ${currentUser.uid}: false`)
+        }
+      } else {
+        setIsDarkMode(false)
+        console.log("Theme set to default (not logged in): false")
+      }
+    })
+    return () => unsubscribe()
   }, [])
 
-  const toggleDarkMode = () => {
-    if (isDarkMode === null) return
-    const newMode = !isDarkMode
-    setIsDarkMode(newMode)
-    document.documentElement.classList.toggle("dark", newMode)
-    localStorage.setItem("theme", newMode ? "dark" : "light")
-  }
+  useEffect(() => {
+    if (auth.currentUser) {
+      localStorage.setItem("isDarkMode", JSON.stringify(isDarkMode))
+      console.log(
+        `Theme saved to localStorage for user ${auth.currentUser.uid}: ${isDarkMode}`
+      )
+    }
+  }, [isDarkMode])
 
-  // tránh flicker: đợi theme sync xong mới render
-  if (isDarkMode === null) return null
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev)
+  }
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
       {children}
     </ThemeContext.Provider>
   )
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext)
+  if (!context) {
+    throw new Error("useTheme must be used within a ThemeProvider")
+  }
+  return context
 }

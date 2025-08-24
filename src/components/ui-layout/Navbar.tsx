@@ -12,8 +12,6 @@ import {
   Sun,
   Moon,
   Languages,
-  ChevronUp,
-  MessageCircle,
   Star,
   LogIn,
 } from "lucide-react"
@@ -36,6 +34,8 @@ import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
 import { useCursor } from "@/lib/CursorContext"
 import { translations } from "@/lib/translations"
 import UserDropdownMenu from "@/components/ui-setting/userDropDownMenu"
+import Chatbot from "@/components/ui-helps/ChatBot"
+import ScrollToTop from "@/components/ui-helps/ScrollToTop"
 
 // Components
 const BrandLogo = ({
@@ -325,7 +325,7 @@ const MobileMenu = ({
               <h3 className="text-lg font-bold">
                 {translations[language].welcome}
               </h3>
-              <p className="text-xs">login con cu </p>
+              <p className="text-xs">{translations[language].loginPrompt}</p>
             </div>
             <Link
               href="/login"
@@ -404,143 +404,6 @@ const LanguageToggle = ({
   </button>
 )
 
-const ScrollToTopButton = ({
-  isDarkMode,
-  isChatbotVisible,
-}: {
-  isDarkMode: boolean
-  isChatbotVisible: boolean
-}) => {
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const toggleVisibility = () => {
-      setIsVisible(window.scrollY > 300)
-    }
-
-    window.addEventListener("scroll", toggleVisibility)
-    return () => window.removeEventListener("scroll", toggleVisibility)
-  }, [])
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    })
-  }
-
-  return (
-    <button
-      onClick={scrollToTop}
-      className={`fixed right-4 p-3 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-110 z-50 ${
-        isDarkMode
-          ? "bg-black text-white border-white"
-          : "bg-white text-black border-black"
-      } ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-0"} ${
-        isChatbotVisible ? "bottom-18" : "bottom-4"
-      }`}
-      style={{ transformOrigin: "bottom right" }}
-      aria-label="Scroll to top"
-    >
-      <ChevronUp className="w-6 h-6 pixelated" />
-    </button>
-  )
-}
-
-const ChatbotButton = ({
-  isDarkMode,
-  isChatOpen,
-  setIsChatOpen,
-  isChatbotVisible,
-  language,
-}: {
-  isDarkMode: boolean
-  isChatOpen: boolean
-  setIsChatOpen: (value: boolean) => void
-  isChatbotVisible: boolean
-  language: keyof typeof translations
-}) => {
-  const toggleChat = () => {
-    setIsChatOpen(!isChatOpen)
-  }
-
-  if (!isChatbotVisible) return null
-
-  return (
-    <>
-      <button
-        onClick={toggleChat}
-        className={`fixed bottom-4 right-4 p-3 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-110 z-50 ${
-          isDarkMode
-            ? "bg-black text-white border-white"
-            : "bg-white text-black border-black"
-        }`}
-        aria-label="Toggle chatbot"
-      >
-        <MessageCircle className="w-6 h-6 pixelated" />
-      </button>
-      {isChatOpen && (
-        <div
-          className={`fixed bottom-16 right-4 w-80 h-96 border-2 shadow-[8px_8px_0_0] rounded-none transition-all duration-200 steps-4 z-50 ${
-            isDarkMode
-              ? "bg-black border-white shadow-white text-white"
-              : "bg-white border-black shadow-black text-black"
-          } animate-in slide-in-from-bottom-5`}
-        >
-          <div className="flex flex-col h-full p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg">Chatbot</h3>
-              <button
-                onClick={toggleChat}
-                className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
-                  isDarkMode
-                    ? "bg-black text-white border-white"
-                    : "bg-white text-black border-black"
-                }`}
-                aria-label="Close chatbot"
-              >
-                <X className="w-4 h-4 pixelated" />
-              </button>
-            </div>
-            <div className="flex-1 border-2 p-2 overflow-y-auto">
-              <p className="text-sm">
-                {isDarkMode
-                  ? translations[language].chatWelcomeDark
-                  : translations[language].chatWelcomeLight}
-              </p>
-            </div>
-            <div className="mt-2 flex gap-2">
-              <input
-                type="text"
-                placeholder={
-                  translations[language].chatPlaceholder ||
-                  "Type your message..."
-                }
-                className={`flex-1 p-2 border-2 rounded-none text-sm ${
-                  isDarkMode
-                    ? "bg-black text-white border-white placeholder-gray-400"
-                    : "bg-white text-black border-black placeholder-gray-500"
-                }`}
-                aria-label="Chat input"
-              />
-              <button
-                className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
-                  isDarkMode
-                    ? "bg-black text-white border-white"
-                    : "bg-white text-black border-black"
-                }`}
-                aria-label="Send message"
-              >
-                {translations[language].send || "Send"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  )
-}
-
 export default function Navbar() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
@@ -549,12 +412,62 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState<boolean>(false)
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
   const [isChatbotVisible, setIsChatbotVisible] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const { isDarkMode, toggleDarkMode } = useTheme()
   const { font, toggleFont } = useFont()
   const { language, toggleLanguage } = useLanguage()
   const { isCursorEnabled, toggleCursor } = useCursor()
   const pathname = usePathname()
+
+  // Initialize states based on user authentication
+  useEffect(() => {
+    console.log("Navbar: Starting auth state check")
+    const unsubscribe = auth.onAuthStateChanged(
+      (currentUser: FirebaseUser | null) => {
+        console.log(
+          `Navbar: Auth state changed, user: ${
+            currentUser ? currentUser.uid : "null"
+          }`
+        )
+        setUser(currentUser)
+        setIsMenuOpen(false)
+        if (currentUser) {
+          // Load states from localStorage for logged-in user
+          const savedChatbotVisible = localStorage.getItem("isChatbotVisible")
+          if (savedChatbotVisible) {
+            const parsedValue = JSON.parse(savedChatbotVisible)
+            setIsChatbotVisible(parsedValue)
+            console.log(
+              `Navbar: Chatbot visibility loaded for user ${currentUser.uid}: ${parsedValue}`
+            )
+          }
+        } else {
+          // Set default states for non-logged-in user
+          setIsChatbotVisible(false)
+          console.log(
+            "Navbar: Chatbot visibility set to default: false (not logged in)"
+          )
+        }
+        setIsLoading(false)
+        console.log("Navbar: Auth state check complete, isLoading: false")
+      }
+    )
+    return () => {
+      console.log("Navbar: Cleaning up auth subscription")
+      unsubscribe()
+    }
+  }, [])
+
+  // Save isChatbotVisible to localStorage only for logged-in user
+  useEffect(() => {
+    if (!isLoading && user) {
+      localStorage.setItem("isChatbotVisible", JSON.stringify(isChatbotVisible))
+      console.log(
+        `Navbar: Chatbot visibility saved to localStorage: ${isChatbotVisible}`
+      )
+    }
+  }, [isChatbotVisible, user, isLoading])
 
   // Scroll detection for sticky navbar
   useEffect(() => {
@@ -563,17 +476,6 @@ export default function Navbar() {
     }
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  // Firebase auth state
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(
-      (currentUser: FirebaseUser | null) => {
-        setUser(currentUser)
-        setIsMenuOpen(false)
-      }
-    )
-    return () => unsubscribe()
   }, [])
 
   // Count bookmarks and folders
@@ -610,25 +512,44 @@ export default function Navbar() {
     try {
       await signOut(auth)
       setIsMenuOpen(false)
+      setIsChatbotVisible(false)
+      // Clear all states from localStorage
+      localStorage.removeItem("isChatbotVisible")
+      localStorage.removeItem("font")
+      localStorage.removeItem("language")
+      localStorage.removeItem("isDarkMode")
+      localStorage.removeItem("isCursorEnabled")
+      console.log("Navbar: Logged out successfully, cleared localStorage")
     } catch (error) {
-      console.error("Error signing out:", error)
+      console.error("Navbar: Error signing out:", error)
     }
   }
 
   const toggleChatbot = () => {
-    setIsChatbotVisible((prev) => !prev)
+    setIsChatbotVisible((prev) => {
+      const newValue = !prev
+      console.log(`Navbar: Toggling chatbot visibility: ${newValue}`)
+      return newValue
+    })
   }
 
   // Debug initial state
   useEffect(() => {
-    console.log("Initial Navbar state:", {
-      isDarkMode,
-      language,
-      font,
-      isCursorEnabled,
-      isChatbotVisible,
-    })
-  }, [isDarkMode, language, font, isCursorEnabled, isChatbotVisible])
+    if (!isLoading) {
+      console.log("Navbar: Initial state:", {
+        isDarkMode,
+        language,
+        font,
+        isCursorEnabled,
+        isChatbotVisible,
+      })
+    }
+  }, [isDarkMode, language, font, isCursorEnabled, isChatbotVisible, isLoading])
+
+  if (isLoading) {
+    console.log("Navbar: Still loading, not rendering")
+    return null
+  }
 
   return (
     <>
@@ -735,16 +656,17 @@ export default function Navbar() {
           pathname={pathname}
         />
       )}
-      <ScrollToTopButton
+      <ScrollToTop
         isDarkMode={isDarkMode}
         isChatbotVisible={isChatbotVisible}
       />
-      <ChatbotButton
+      <Chatbot
         isDarkMode={isDarkMode}
         isChatOpen={isChatOpen}
         setIsChatOpen={setIsChatOpen}
         isChatbotVisible={isChatbotVisible}
         language={language}
+        font={font}
       />
     </>
   )
