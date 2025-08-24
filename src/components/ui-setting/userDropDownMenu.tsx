@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   User,
   Palette,
@@ -12,7 +12,6 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import { translations } from "@/lib/translations"
-// import anime from "animejs"
 import type { User as FirebaseUser } from "firebase/auth"
 
 interface UserDropdownMenuProps {
@@ -97,12 +96,31 @@ export default function UserDropdownMenu({
   toggleChatbot,
 }: UserDropdownMenuProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev)
   }
 
-  // Animate toggle actions
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isDropdownOpen])
 
   const handleLanguageToggle = () => {
     toggleLanguage()
@@ -121,7 +139,7 @@ export default function UserDropdownMenu({
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
         className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${

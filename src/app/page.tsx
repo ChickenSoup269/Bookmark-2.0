@@ -1,10 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
 import { useState, useEffect, useRef, JSX } from "react"
 import { motion, useInView, useAnimation } from "framer-motion"
 import {
   Bookmark,
-  Sparkles,
   Star,
   Zap,
   Shield,
@@ -17,7 +17,6 @@ import {
   ArrowDown,
   Heart,
   Search,
-  Crown,
   Download,
   Eye,
 } from "lucide-react"
@@ -25,6 +24,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { useCursor } from "@/lib/CursorContext"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
+import { useFont } from "@/lib/controls-setting-change/changeTextFont"
+import { translations } from "@/lib/translations"
+import CursorEffect from "@/components/ui-effects/CursorEffect"
 
 interface Feature {
   icon: JSX.Element
@@ -46,19 +49,12 @@ interface Stat {
   icon: JSX.Element
 }
 
-interface MousePosition {
-  x: number
-  y: number
-}
-
 export default function Home() {
   const [currentFeature, setCurrentFeature] = useState<number>(0)
-  const [mousePosition, setMousePosition] = useState<MousePosition>({
-    x: 0,
-    y: 0,
-  })
-  const { isCursorEnabled } = useCursor()
   const { isDarkMode } = useTheme()
+  const { language } = useLanguage()
+  const { font } = useFont()
+  const { isCursorEnabled } = useCursor()
 
   // Refs and animation controls for each section
   const heroRef = useRef<HTMLElement>(null)
@@ -91,53 +87,74 @@ export default function Home() {
   const features: Feature[] = [
     {
       icon: <Bookmark className="w-8 h-8 pixelated" />,
-      title: "Smart Organization",
+      title:
+        translations[language].features?.smartOrganization?.title ||
+        "Smart Organization",
       description:
+        translations[language].features?.smartOrganization?.description ||
         "AI-powered categorization và smart folders giúp tổ chức bookmark hiệu quả",
     },
     {
       icon: <Search className="w-8 h-8 pixelated" />,
-      title: "Lightning Search",
-      description: "Tìm kiếm instant với full-text search và smart suggestions",
+      title:
+        translations[language].features?.lightningSearch?.title ||
+        "Lightning Search",
+      description:
+        translations[language].features?.lightningSearch?.description ||
+        "Tìm kiếm instant với full-text search và smart suggestions",
     },
     {
       icon: <Smartphone className="w-8 h-8 pixelated" />,
-      title: "Cross-Platform Sync",
-      description: "Đồng bộ seamless trên mọi thiết bị với real-time updates",
+      title:
+        translations[language].features?.crossPlatformSync?.title ||
+        "Cross-Platform Sync",
+      description:
+        translations[language].features?.crossPlatformSync?.description ||
+        "Đồng bộ seamless trên mọi thiết bị với real-time updates",
     },
     {
       icon: <Shield className="w-8 h-8 pixelated" />,
-      title: "Secure & Private",
-      description: "End-to-end encryption và privacy-first design",
+      title:
+        translations[language].features?.securePrivate?.title ||
+        "Secure & Private",
+      description:
+        translations[language].features?.securePrivate?.description ||
+        "End-to-end encryption và privacy-first design",
     },
   ]
 
   const testimonials: Testimonial[] = [
     {
       name: "Nguyen Van A",
-      role: "Developer",
+      role: translations[language].testimonials?.developer?.role || "Developer",
       avatar: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuVuP5evfLgVTOiHaPFCZlT0MtWZP73FftQ&s=${
         isDarkMode ? "FFFFFF" : "000000"
       }&color=${isDarkMode ? "000000" : "FFFFFF"}&size=64`,
-      text: "Ứng dụng bookmark tốt nhất tôi từng dùng. Interface đẹp và tính năng đầy đủ!",
+      text:
+        translations[language].testimonials?.developer?.text ||
+        "Ứng dụng bookmark tốt nhất tôi từng dùng. Interface đẹp và tính năng đầy đủ!",
       rating: 5,
     },
     {
       name: "Tran Thi B",
-      role: "Designer",
+      role: translations[language].testimonials?.designer?.role || "Designer",
       avatar: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuVuP5evfLgVTOiHaPFCZlT0MtWZP73FftQ&s=${
         isDarkMode ? "FFFFFF" : "000000"
       }&color=${isDarkMode ? "000000" : "FFFFFF"}&size=64`,
-      text: "Design cực kỳ modern và smooth. Làm việc với bookmark giờ trở nên thú vị!",
+      text:
+        translations[language].testimonials?.designer?.text ||
+        "Design cực kỳ modern và smooth. Làm việc với bookmark giờ trở nên thú vị!",
       rating: 5,
     },
     {
       name: "Le Van C",
-      role: "Student",
+      role: translations[language].testimonials?.student?.role || "Student",
       avatar: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuVuP5evfLgVTOiHaPFCZlT0MtWZP73FftQ&s=${
         isDarkMode ? "FFFFFF" : "000000"
       }&color=${isDarkMode ? "000000" : "FFFFFF"}&size=64`,
-      text: "Perfect cho việc research. Tổ chức tài liệu học tập chưa bao giờ dễ dàng đến thế!",
+      text:
+        translations[language].testimonials?.student?.text ||
+        "Perfect cho việc research. Tổ chức tài liệu học tập chưa bao giờ dễ dàng đến thế!",
       rating: 5,
     },
   ]
@@ -145,22 +162,22 @@ export default function Home() {
   const stats: Stat[] = [
     {
       number: "50K+",
-      label: "Active Users",
+      label: translations[language].stats?.activeUsers || "Active Users",
       icon: <Users className="w-5 h-5 pixelated" />,
     },
     {
       number: "2M+",
-      label: "Bookmarks Saved",
+      label: translations[language].stats?.bookmarksSaved || "Bookmarks Saved",
       icon: <Bookmark className="w-5 h-5 pixelated" />,
     },
     {
       number: "99.9%",
-      label: "Uptime",
+      label: translations[language].stats?.uptime || "Uptime",
       icon: <TrendingUp className="w-5 h-5 pixelated" />,
     },
     {
       number: "24/7",
-      label: "Support",
+      label: translations[language].stats?.support || "Support",
       icon: <Heart className="w-5 h-5 pixelated" />,
     },
   ]
@@ -171,16 +188,6 @@ export default function Home() {
     }, 3000)
     return () => clearInterval(interval)
   }, [])
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
-    if (isCursorEnabled) {
-      window.addEventListener("mousemove", handleMouseMove)
-    }
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [isCursorEnabled])
 
   useEffect(() => {
     if (heroInView) heroControls.start("visible")
@@ -234,10 +241,11 @@ export default function Home() {
 
   return (
     <div
-      className={`min-h-screen font-gohu transition-all duration-300 ease-out ${
+      className={`min-h-screen transition-all duration-300 ease-out font-${font} ${
         isDarkMode ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
+      <CursorEffect />
       {/* Animated pixel background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className={`pixel-grid ${isDarkMode ? "dark" : "light"}`}>
@@ -303,36 +311,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Cursor follower */}
-      {isCursorEnabled && (
-        <>
-          <div
-            className={`fixed w-8 h-8 border-2 rounded-none pointer-events-none z-50 transition-all duration-300 ease-out ${
-              isDarkMode ? "bg-white border-white" : "bg-black border-black"
-            }`}
-            style={{
-              left: mousePosition.x - 16,
-              top: mousePosition.y - 16,
-              transform: `scale(${mousePosition.x > 0 ? 1 : 0})`,
-              boxShadow: isDarkMode
-                ? "0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3)"
-                : "0 0 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 0, 0, 0.3)",
-              filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))",
-            }}
-          />
-          <div
-            className={`fixed w-4 h-4 border rounded-none pointer-events-none z-49 transition-all duration-400 ease-out opacity-30 ${
-              isDarkMode ? "bg-white border-white" : "bg-black border-black"
-            }`}
-            style={{
-              left: mousePosition.x - 8,
-              top: mousePosition.y - 8,
-              transform: `scale(${mousePosition.x > 0 ? 0.7 : 0})`,
-            }}
-          />
-        </>
-      )}
-
       {/* Hero Section */}
       <motion.section
         ref={heroRef}
@@ -357,28 +335,12 @@ export default function Home() {
               />
             ))}
           </div>
-          <motion.div variants={itemVariants}>
-            <div
-              className={`inline-flex items-center gap-2 border-2 px-4 py-2 mb-8 transition-all duration-200 steps-4 hover:scale-105 ${
-                isDarkMode
-                  ? "bg-black border-white text-white"
-                  : "bg-white border-black text-black"
-              }`}
-            >
-              <Sparkles className="w-5 h-5 pixelated animate-pulse" />
-              <span className="text-sm font-medium">
-                Introducing Bookmark Manager 2.0
-              </span>
-              <Crown className="w-4 h-4 pixelated animate-pulse" />
-            </div>
-          </motion.div>
+
           <motion.h1
             variants={itemVariants}
             className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
           >
-            Bookmark
-            <br />
-            Revolution
+            {translations[language].hero?.title || "Bookmark Revolution"}
           </motion.h1>
           <motion.p
             variants={itemVariants}
@@ -386,9 +348,8 @@ export default function Home() {
               isDarkMode ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            Trải nghiệm quản lý bookmark{" "}
-            <span className="font-semibold">hoàn toàn mới</span> với AI-powered
-            organization, beautiful design và lightning-fast performance
+            {translations[language].hero?.subtitle ||
+              "Trải nghiệm quản lý bookmark hoàn toàn mới với AI-powered organization, beautiful design và lightning-fast performance"}
           </motion.p>
           <motion.div
             variants={itemVariants}
@@ -406,7 +367,8 @@ export default function Home() {
                 href="https://chromewebstore.google.com/detail/bookmark-manager/jhcoclfodfnchlddakkeegkogajdpgce?authuser=0&hl=en"
               >
                 <Download className="w-6 h-6 pixelated group-hover:scale-110" />
-                Tải extension ngay!
+                {translations[language].downloadExtension ||
+                  "Tải extension ngay!"}
                 <ChevronRight className="w-5 h-5 pixelated group-hover:translate-x-1" />
               </Link>
             </button>
@@ -426,7 +388,7 @@ export default function Home() {
               >
                 <Play className="w-5 h-5 pixelated ml-1" />
               </div>
-              Xem Demo
+              {translations[language].viewDemo || "Xem Demo"}
             </button>
           </motion.div>
           <motion.button
@@ -497,17 +459,15 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <motion.div variants={itemVariants} className="text-center mb-16">
             <h2 className="text-5xl lg:text-6xl font-bold mb-6">
-              Tính năng
-              <br />
-              Đột phá
+              {translations[language].features?.title || "Tính năng Đột phá"}
             </h2>
             <p
               className={`text-xl max-w-2xl mx-auto ${
                 isDarkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Mỗi tính năng được thiết kế để mang lại trải nghiệm tối ưu nhất
-              cho người dùng
+              {translations[language].features?.subtitle ||
+                "Mỗi tính năng được thiết kế để mang lại trải nghiệm tối ưu nhất cho người dùng"}
             </p>
           </motion.div>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -584,7 +544,8 @@ export default function Home() {
                     <p
                       className={isDarkMode ? "text-gray-400" : "text-gray-600"}
                     >
-                      Interactive preview coming soon...
+                      {translations[language].features?.preview ||
+                        "Interactive preview coming soon..."}
                     </p>
                   </div>
                 </div>
@@ -605,16 +566,15 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <motion.div variants={itemVariants} className="text-center mb-16">
             <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-              Hướng dẫn
-              <br />
-              <span className="font-bold">Chi tiết</span>
+              {translations[language].video?.title || "Hướng dẫn Chi tiết"}
             </h2>
             <p
               className={`text-xl max-w-2xl mx-auto ${
                 isDarkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Tìm hiểu cách sử dụng Bookmark Manager hiệu quả trong vài phút
+              {translations[language].video?.subtitle ||
+                "Tìm hiểu cách sử dụng Bookmark Manager hiệu quả trong vài phút"}
             </p>
           </motion.div>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -675,14 +635,16 @@ export default function Home() {
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg font-bold mb-2">
-                    Getting Started with Bookmark Manager
+                    {translations[language].video?.videoTitle ||
+                      "Getting Started with Bookmark Manager"}
                   </h3>
                   <p
                     className={`text-sm ${
                       isDarkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    Tìm hiểu cách thiết lập và sử dụng các tính năng cơ bản
+                    {translations[language].video?.videoDescription ||
+                      "Tìm hiểu cách thiết lập và sử dụng các tính năng cơ bản"}
                   </p>
                 </div>
               </div>
@@ -695,20 +657,32 @@ export default function Home() {
                 {[
                   {
                     step: 1,
-                    title: "Cài đặt Extension",
+                    title:
+                      translations[language].video?.steps?.installExtension
+                        ?.title || "Cài đặt Extension",
                     description:
+                      translations[language].video?.steps?.installExtension
+                        ?.description ||
                       "Tải và cài đặt extension từ Chrome Web Store. Quá trình chỉ mất vài giây và hoàn toàn miễn phí.",
                   },
                   {
                     step: 2,
-                    title: "Import Bookmarks",
+                    title:
+                      translations[language].video?.steps?.importBookmarks
+                        ?.title || "Import Bookmarks",
                     description:
+                      translations[language].video?.steps?.importBookmarks
+                        ?.description ||
                       "Đồng bộ tất cả bookmark hiện có từ trình duyệt. AI sẽ tự động phân loại và tổ chức chúng thành các folder thông minh.",
                   },
                   {
                     step: 3,
-                    title: "Khám phá Features",
+                    title:
+                      translations[language].video?.steps?.exploreFeatures
+                        ?.title || "Khám phá Features",
                     description:
+                      translations[language].video?.steps?.exploreFeatures
+                        ?.description ||
                       "Tìm hiểu các tính năng mạnh mẽ như Smart Search, Tag System, và Cross-Device Sync để tối ưu workflow.",
                   },
                 ].map((feature, index) => (
@@ -754,7 +728,8 @@ export default function Home() {
                   }`}
                 >
                   <Eye className="w-6 h-6 pixelated group-hover:scale-110" />
-                  Xem thêm tutorials
+                  {translations[language].video?.moreTutorials ||
+                    "Xem thêm tutorials"}
                   <ChevronRight className="w-5 h-5 pixelated group-hover:translate-x-1" />
                 </button>
               </motion.div>
@@ -774,14 +749,16 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <motion.div variants={itemVariants} className="text-center mb-12">
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-              Người dùng <span className="font-bold">yêu thích</span>
+              {translations[language].testimonials?.title ||
+                "Người dùng yêu thích"}
             </h2>
             <p
               className={`text-xl ${
                 isDarkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Nghe từ cộng đồng 50K+ người dùng hài lòng
+              {translations[language].testimonials?.subtitle ||
+                "Nghe từ cộng đồng 50K+ người dùng hài lòng"}
             </p>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -852,15 +829,15 @@ export default function Home() {
             }`}
           >
             <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-              Sẵn sàng bắt đầu?
+              {translations[language].cta?.title || "Sẵn sàng bắt đầu?"}
             </h2>
             <p
               className={`text-xl mb-8 max-w-2xl mx-auto ${
                 isDarkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Tham gia cùng hàng ngàn người dùng đã tin tưởng Bookmark Manager
-              để tổ chức cuộc sống số của họ
+              {translations[language].cta?.subtitle ||
+                "Tham gia cùng hàng ngàn người dùng đã tin tưởng Bookmark Manager để tổ chức cuộc sống số của họ"}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <motion.button
@@ -873,7 +850,7 @@ export default function Home() {
               >
                 <div className="flex items-center gap-3">
                   <Zap className="w-6 h-6 pixelated group-hover:scale-110" />
-                  Đăng nhập với Google
+                  {translations[language].login || "Đăng nhập với Google"}
                   <ChevronRight className="w-5 h-5 pixelated group-hover:translate-x-1" />
                 </div>
               </motion.button>
@@ -884,9 +861,15 @@ export default function Home() {
                 }`}
               >
                 <Check className="w-5 h-5 pixelated" />
-                <span>Miễn phí mãi mãi</span>
+                <span>
+                  {translations[language].cta?.freeForever ||
+                    "Miễn phí mãi mãi"}
+                </span>
                 <Check className="w-5 h-5 pixelated" />
-                <span>Không cần thẻ tín dụng</span>
+                <span>
+                  {translations[language].cta?.noCreditCard ||
+                    "Không cần thẻ tín dụng"}
+                </span>
               </motion.div>
             </div>
           </motion.div>

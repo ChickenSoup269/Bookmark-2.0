@@ -31,6 +31,11 @@ import { useRouter } from "next/navigation"
 import BookmarkForm from "@/components/ui-controls/add"
 import DeleteFolder from "@/components/ui-controls/DeleteFolder"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
+import { useFont } from "@/lib/controls-setting-change/changeTextFont"
+import { useCursor } from "@/lib/CursorContext"
+import { translations } from "@/lib/translations"
+import CursorEffect from "@/components/ui-effects/CursorEffect"
 
 type Bookmark = {
   id: string
@@ -64,6 +69,9 @@ const colorPalette = [
 
 export default function BookmarkManager() {
   const { isDarkMode } = useTheme()
+  const { language } = useLanguage()
+  const { font } = useFont()
+  const { isCursorEnabled, toggleCursor } = useCursor()
   const router = useRouter()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
@@ -82,29 +90,20 @@ export default function BookmarkManager() {
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
-  const [isChatbotVisible, setIsChatbotVisible] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const storedValue = localStorage.getItem("isChatbotVisible")
-      return storedValue !== null ? JSON.parse(storedValue) : true
-    }
-    return true
-  })
 
+  // Giả lập dữ liệu bookmarkCount và folderCount
+  const bookmarkCount = bookmarks.length
+  const folderCount = folders.length
+
+  // Kiểm tra trạng thái đăng nhập
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
         router.push("/")
       }
     })
-    return unsubscribe
+    return () => unsubscribe()
   }, [router])
-
-  // Save isChatbotVisible to localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("isChatbotVisible", JSON.stringify(isChatbotVisible))
-    }
-  }, [isChatbotVisible])
 
   // Lấy bookmark và thư mục từ Firestore
   useEffect(() => {
@@ -131,7 +130,6 @@ export default function BookmarkManager() {
         color: doc.data().color || "#6B7280",
       }))
       setFolders(folderData)
-      console.log("Fetched folders:", folderData)
     })
 
     return () => {
@@ -262,7 +260,10 @@ export default function BookmarkManager() {
   const handleDeleteBookmark = async (id: string) => {
     if (
       !auth.currentUser ||
-      !confirm("Are you sure you want to delete this bookmark?")
+      !confirm(
+        translations[language].confirmDeleteBookmark ||
+          "Are you sure you want to delete this bookmark?"
+      )
     )
       return
     try {
@@ -333,6 +334,7 @@ export default function BookmarkManager() {
                   }}
                 >
                   {folders.find((f) => f.id === bookmark.folderId)?.title ||
+                    translations[language].otherFolder ||
                     "Other"}
                 </span>
               </div>
@@ -376,7 +378,9 @@ export default function BookmarkManager() {
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:scale-105 transition-all duration-200 steps-4"
             >
-              <span className="text-sm font-medium">Visit</span>
+              <span className="text-sm font-medium">
+                {translations[language].visit || "Visit"}
+              </span>
               <ExternalLink className="w-4 h-4 pixelated" />
             </a>
             <div className="flex items-center gap-2">
@@ -460,6 +464,7 @@ export default function BookmarkManager() {
                 }}
               >
                 {folders.find((f) => f.id === bookmark.folderId)?.title ||
+                  translations[language].otherFolder ||
                   "Other"}
               </span>
             </div>
@@ -534,15 +539,19 @@ export default function BookmarkManager() {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`min-h-screen transition-all duration-300 ease-out font-${font} ${
         isDarkMode ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
+      <CursorEffect />
       <div className="relative z-10 container mx-auto px-6 py-8 max-w-7xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold">Bookmark Manager</h1>
+          <h1 className="text-4xl md:text-6xl font-bold">
+            {translations[language].bookmarkManager || "Bookmark Manager"}
+          </h1>
           <p className="text-xl mt-2">
-            Organize your digital life with style and efficiency
+            {translations[language].bookmarkManagerSubtitle ||
+              "Organize your digital life with style and efficiency"}
           </p>
         </div>
         <div
@@ -561,7 +570,10 @@ export default function BookmarkManager() {
               />
               <input
                 type="text"
-                placeholder="Search bookmarks..."
+                placeholder={
+                  translations[language].searchBookmarks ||
+                  "Search bookmarks..."
+                }
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className={`w-full pl-10 pr-12 py-3 border-2 focus:outline-none transition-all duration-200 steps-4 ${
@@ -626,7 +638,7 @@ export default function BookmarkManager() {
               }`}
             >
               <Filter className="w-5 h-5 pixelated" />
-              Filters
+              {translations[language].filters || "Filters"}
             </button>
             <button
               onClick={() => setShowCreateFolder(true)}
@@ -637,7 +649,7 @@ export default function BookmarkManager() {
               }`}
             >
               <FolderPlus className="w-5 h-5 pixelated" />
-              New Folder
+              {translations[language].newFolder || "New Folder"}
             </button>
           </div>
           {showFilters && (
@@ -655,7 +667,9 @@ export default function BookmarkManager() {
                     : "bg-white text-black border-black"
                 }`}
               >
-                <option value="">All Folders</option>
+                <option value="">
+                  {translations[language].allFolders || "All Folders"}
+                </option>
                 {folders.map((folder) => (
                   <option key={folder.id} value={folder.id}>
                     {folder.title}
@@ -671,12 +685,24 @@ export default function BookmarkManager() {
                     : "bg-white text-black border-black"
                 }`}
               >
-                <option value="default">Default Order</option>
-                <option value="new">Newest First</option>
-                <option value="old">Oldest First</option>
-                <option value="a-z">A to Z</option>
-                <option value="z-a">Z to A</option>
-                <option value="favorites">Favorites First</option>
+                <option value="default">
+                  {translations[language].defaultOrder || "Default Order"}
+                </option>
+                <option value="new">
+                  {translations[language].newestFirst || "Newest First"}
+                </option>
+                <option value="old">
+                  {translations[language].oldestFirst || "Oldest First"}
+                </option>
+                <option value="a-z">
+                  {translations[language].aToZ || "A to Z"}
+                </option>
+                <option value="z-a">
+                  {translations[language].zToA || "Z to A"}
+                </option>
+                <option value="favorites">
+                  {translations[language].favoritesFirst || "Favorites First"}
+                </option>
               </select>
               <button
                 onClick={() => setShowCheckboxes(!showCheckboxes)}
@@ -691,7 +717,9 @@ export default function BookmarkManager() {
                 ) : (
                   <Eye className="w-5 h-5 pixelated" />
                 )}
-                {showCheckboxes ? "Hide Selection" : "Show Selection"}
+                {showCheckboxes
+                  ? translations[language].hideSelection || "Hide Selection"
+                  : translations[language].showSelection || "Show Selection"}
               </button>
             </div>
           )}
@@ -708,7 +736,9 @@ export default function BookmarkManager() {
               <span className="text-2xl font-bold">
                 {sortedBookmarks.length}
               </span>
-              <span className="ml-2">bookmarks</span>
+              <span className="ml-2">
+                {translations[language].bookmarks || "bookmarks"}
+              </span>
             </div>
             {selectedBookmarks.length > 0 && (
               <div
@@ -719,7 +749,8 @@ export default function BookmarkManager() {
                 }`}
               >
                 <span className="font-medium">
-                  {selectedBookmarks.length} selected
+                  {selectedBookmarks.length}{" "}
+                  {translations[language].selected || "selected"}
                 </span>
               </div>
             )}
@@ -748,8 +779,8 @@ export default function BookmarkManager() {
                 }`}
               >
                 {selectedBookmarks.length === sortedBookmarks.length
-                  ? "Deselect All"
-                  : "Select All"}
+                  ? translations[language].deselectAll || "Deselect All"
+                  : translations[language].selectAll || "Select All"}
               </button>
               {selectedBookmarks.length > 0 && (
                 <button
@@ -761,7 +792,7 @@ export default function BookmarkManager() {
                   }`}
                 >
                   <Folder className="w-5 h-5 pixelated" />
-                  Move to Folder
+                  {translations[language].moveToFolder || "Move to Folder"}
                 </button>
               )}
             </div>
@@ -797,8 +828,13 @@ export default function BookmarkManager() {
             >
               <Search className="w-16 h-16 pixelated" />
             </div>
-            <h3 className="text-2xl font-semibold mb-2">No bookmarks found</h3>
-            <p>Try adjusting your search or filters</p>
+            <h3 className="text-2xl font-semibold mb-2">
+              {translations[language].noBookmarksFound || "No bookmarks found"}
+            </h3>
+            <p>
+              {translations[language].adjustSearch ||
+                "Try adjusting your search or filters"}
+            </p>
           </div>
         )}
       </div>
@@ -815,7 +851,9 @@ export default function BookmarkManager() {
                 : "bg-white text-black border-black shadow-black"
             }`}
           >
-            <h3 className="text-2xl font-bold mb-6">Rename Bookmark</h3>
+            <h3 className="text-2xl font-bold mb-6">
+              {translations[language].renameBookmark || "Rename Bookmark"}
+            </h3>
             <div className="space-y-4">
               <input
                 type="text"
@@ -826,7 +864,9 @@ export default function BookmarkManager() {
                     ? "bg-black text-white border-white placeholder-gray-400"
                     : "bg-white text-black border-black placeholder-gray-500"
                 }`}
-                placeholder="Enter new name..."
+                placeholder={
+                  translations[language].enterNewName || "Enter new name..."
+                }
                 maxLength={255}
               />
               <div className="flex gap-3">
@@ -839,7 +879,7 @@ export default function BookmarkManager() {
                   }`}
                 >
                   <Check className="w-5 h-5 pixelated" />
-                  Save
+                  {translations[language].save || "Save"}
                 </button>
                 <button
                   onClick={() => setRenameBookmarkId(null)}
@@ -849,7 +889,7 @@ export default function BookmarkManager() {
                       : "bg-white text-black border-black"
                   }`}
                 >
-                  Cancel
+                  {translations[language].cancel || "Cancel"}
                 </button>
               </div>
             </div>
@@ -869,7 +909,9 @@ export default function BookmarkManager() {
                 : "bg-white text-black border-black shadow-black"
             }`}
           >
-            <h3 className="text-2xl font-bold mb-6">Move to Folder</h3>
+            <h3 className="text-2xl font-bold mb-6">
+              {translations[language].moveToFolder || "Move to Folder"}
+            </h3>
             <div className="space-y-4">
               <select
                 value={selectedFolder}
@@ -880,14 +922,18 @@ export default function BookmarkManager() {
                     : "bg-white text-black border-black"
                 }`}
               >
-                <option value="">Select Folder</option>
+                <option value="">
+                  {translations[language].selectFolder || "Select Folder"}
+                </option>
                 {folders.map((folder) => (
                   <option key={folder.id} value={folder.id}>
                     {folder.title}
                   </option>
                 ))}
               </select>
-              <div className="text-center">or</div>
+              <div className="text-center">
+                {translations[language].or || "or"}
+              </div>
               <input
                 type="text"
                 value={newFolderName}
@@ -897,7 +943,10 @@ export default function BookmarkManager() {
                     ? "bg-black text-white border-white placeholder-gray-400"
                     : "bg-white text-black border-black placeholder-gray-500"
                 }`}
-                placeholder="Create new folder..."
+                placeholder={
+                  translations[language].createNewFolder ||
+                  "Create new folder..."
+                }
               />
               <div className="flex flex-wrap gap-2">
                 {colorPalette.map((color) => (
@@ -933,7 +982,7 @@ export default function BookmarkManager() {
                   }`}
                 >
                   <Check className="w-5 h-5 pixelated" />
-                  Save
+                  {translations[language].save || "Save"}
                 </button>
                 <button
                   onClick={() => {
@@ -946,7 +995,7 @@ export default function BookmarkManager() {
                       : "bg-white text-black border-black"
                   }`}
                 >
-                  Cancel
+                  {translations[language].cancel || "Cancel"}
                 </button>
               </div>
             </div>
@@ -966,7 +1015,9 @@ export default function BookmarkManager() {
                 : "bg-white text-black border-black shadow-black"
             }`}
           >
-            <h3 className="text-2xl font-bold mb-6">Create New Folder</h3>
+            <h3 className="text-2xl font-bold mb-6">
+              {translations[language].createNewFolder || "Create New Folder"}
+            </h3>
             <div className="space-y-4">
               <input
                 type="text"
@@ -977,11 +1028,16 @@ export default function BookmarkManager() {
                     ? "bg-black text-white border-white placeholder-gray-400"
                     : "bg-white text-black border-black placeholder-gray-500"
                 }`}
-                placeholder="Enter folder name..."
+                placeholder={
+                  translations[language].enterFolderName ||
+                  "Enter folder name..."
+                }
                 maxLength={100}
               />
               <div className="space-y-2">
-                <label className="text-sm font-semibold">Folder Color</label>
+                <label className="text-sm font-semibold">
+                  {translations[language].folderColor || "Folder Color"}
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {colorPalette.map((color) => (
                     <button
@@ -1022,7 +1078,7 @@ export default function BookmarkManager() {
                   }`}
                 >
                   <Check className="w-5 h-5 pixelated" />
-                  Create
+                  {translations[language].create || "Create"}
                 </button>
                 <button
                   onClick={() => {
@@ -1036,7 +1092,7 @@ export default function BookmarkManager() {
                       : "bg-white text-black border-black"
                   }`}
                 >
-                  Cancel
+                  {translations[language].cancel || "Cancel"}
                 </button>
               </div>
             </div>

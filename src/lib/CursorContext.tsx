@@ -31,7 +31,7 @@ export const CursorProvider = ({ children }: { children: ReactNode }) => {
 
       // Apply cursor effect
       if (isCursorEnabled) {
-        document.body.style.cursor = "url('/cursor-custom.png'), auto"
+        document.body.style.cursor = "none" // Hide default cursor to use CursorEffect
       } else {
         document.body.style.cursor = "auto"
       }
