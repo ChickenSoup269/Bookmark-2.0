@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from "react"
 import {
-  LogIn,
   LogOut,
   User,
   Bookmark,
-  Sparkles,
   Menu,
   X,
   Home,
@@ -16,14 +14,11 @@ import {
   Languages,
   ChevronUp,
   MessageCircle,
+  Star,
+  LogIn,
 } from "lucide-react"
 import { auth } from "@/lib/firebase"
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-  User as FirebaseUser,
-} from "firebase/auth"
+import { signOut, User as FirebaseUser } from "firebase/auth"
 import {
   collection,
   query,
@@ -68,7 +63,7 @@ const BrandLogo = ({
             : "bg-white border border-black text-black"
         }`}
       >
-        <Sparkles className="w-2 h-2 pixelated" />
+        <Star className="w-2 h-2 pixelated" />
       </div>
     </div>
     <div className="hidden md:block">
@@ -90,7 +85,7 @@ const DesktopNavLinks = ({
   bookmarkCount: number
 }) => (
   <div
-    className={`flex items-center gap-1 p-1  ${
+    className={`flex items-center gap-1 p-1 ${
       isDarkMode ? "bg-black border-white" : "bg-white border-black"
     }`}
   >
@@ -105,13 +100,14 @@ const DesktopNavLinks = ({
           ? "bg-black text-white border-white"
           : "bg-white text-black border-black"
       }`}
+      aria-label="Home"
     >
       <Home className="w-4 h-4 pixelated" />
       <span className="font-medium">{translations[language].home}</span>
     </Link>
     <Link
       href="/bookmarks"
-      className={`flex items-center gap-2 p-2 border-2  rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+      className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
         pathname === "/bookmarks"
           ? isDarkMode
             ? "bg-white text-black border-white"
@@ -120,6 +116,7 @@ const DesktopNavLinks = ({
           ? "bg-black text-white border-white"
           : "bg-white text-black border-black"
       }`}
+      aria-label="Bookmarks"
     >
       <Bookmark className="w-4 h-4 pixelated" />
       <span className="font-medium">{translations[language].bookmarks}</span>
@@ -144,7 +141,6 @@ const MobileMenu = ({
   language,
   bookmarkCount,
   setIsMenuOpen,
-  handleLogin,
   handleLogout,
   toggleLanguage,
   pathname,
@@ -154,7 +150,6 @@ const MobileMenu = ({
   language: keyof typeof translations
   bookmarkCount: number
   setIsMenuOpen: (value: boolean) => void
-  handleLogin: () => void
   handleLogout: () => void
   toggleLanguage: () => void
   pathname: string
@@ -194,6 +189,7 @@ const MobileMenu = ({
                 ? "bg-black text-white border-white"
                 : "bg-white text-black border-black"
             }`}
+            aria-label="Close menu"
           >
             <X className="w-4 h-4 pixelated" />
           </button>
@@ -247,6 +243,7 @@ const MobileMenu = ({
                     : "bg-white text-black border-black"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
+                aria-label="Home"
               >
                 <Home className="w-4 h-4 pixelated" />
                 <span className="font-medium">
@@ -265,6 +262,7 @@ const MobileMenu = ({
                     : "bg-white text-black border-black"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
+                aria-label="Bookmarks"
               >
                 <Bookmark className="w-4 h-4 pixelated" />
                 <span className="font-medium">
@@ -302,6 +300,7 @@ const MobileMenu = ({
                   ? "bg-black text-white border-white"
                   : "bg-white text-black border-black"
               }`}
+              aria-label="Logout"
             >
               <LogOut className="w-4 h-4 pixelated" />
               {translations[language].logout}
@@ -326,26 +325,29 @@ const MobileMenu = ({
               <h3 className="text-lg font-bold">
                 {translations[language].welcome}
               </h3>
-              <p className="text-xs">
-                {language === "en"
-                  ? "Sign in to manage your bookmarks"
-                  : "Đăng nhập để quản lý bookmark của bạn"}
-              </p>
+              <p className="text-xs">login con cu </p>
             </div>
-            <button
-              onClick={() => {
-                handleLogin()
-                setIsMenuOpen(false)
-              }}
+            <Link
+              href="/login"
               className={`w-full flex items-center justify-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                 isDarkMode
                   ? "bg-black text-white border-white"
                   : "bg-white text-black border-black"
               }`}
+              onClick={() => setIsMenuOpen(false)}
+              aria-label="Sign in"
             >
               <LogIn className="w-4 h-4 pixelated" />
               {translations[language].login}
-            </button>
+            </Link>
+            <LanguageToggle
+              isDarkMode={isDarkMode}
+              language={language}
+              toggleLanguage={() => {
+                toggleLanguage()
+                setIsMenuOpen(false)
+              }}
+            />
           </div>
         )}
       </div>
@@ -367,6 +369,7 @@ const ThemeToggle = ({
         ? "bg-black text-white border-white"
         : "bg-white text-black border-black"
     }`}
+    aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
   >
     {isDarkMode ? (
       <Sun className="w-4 h-4 pixelated" />
@@ -392,6 +395,9 @@ const LanguageToggle = ({
         ? "bg-black text-white border-white"
         : "bg-white text-black border-black"
     }`}
+    aria-label={
+      language === "en" ? "Switch to Vietnamese" : "Switch to English"
+    }
   >
     <Languages className="w-4 h-4 pixelated" />
     {language === "en" ? "Tiếng Việt" : "English"}
@@ -491,6 +497,7 @@ const ChatbotButton = ({
                     ? "bg-black text-white border-white"
                     : "bg-white text-black border-black"
                 }`}
+                aria-label="Close chatbot"
               >
                 <X className="w-4 h-4 pixelated" />
               </button>
@@ -505,12 +512,16 @@ const ChatbotButton = ({
             <div className="mt-2 flex gap-2">
               <input
                 type="text"
-                placeholder="Type your message..."
+                placeholder={
+                  translations[language].chatPlaceholder ||
+                  "Type your message..."
+                }
                 className={`flex-1 p-2 border-2 rounded-none text-sm ${
                   isDarkMode
                     ? "bg-black text-white border-white placeholder-gray-400"
                     : "bg-white text-black border-black placeholder-gray-500"
                 }`}
+                aria-label="Chat input"
               />
               <button
                 className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
@@ -518,8 +529,9 @@ const ChatbotButton = ({
                     ? "bg-black text-white border-white"
                     : "bg-white text-black border-black"
                 }`}
+                aria-label="Send message"
               >
-                Send
+                {translations[language].send || "Send"}
               </button>
             </div>
           </div>
@@ -536,31 +548,13 @@ export default function Navbar() {
   const [folderCount, setFolderCount] = useState<number>(0)
   const [isScrolled, setIsScrolled] = useState<boolean>(false)
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
-  const [isChatbotVisible, setIsChatbotVisible] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const storedValue = localStorage.getItem("isChatbotVisible")
-      console.log(
-        "Chatbot visibility initialized from localStorage:",
-        storedValue || "true"
-      )
-      return storedValue !== null ? JSON.parse(storedValue) : true
-    }
-    return true
-  })
+  const [isChatbotVisible, setIsChatbotVisible] = useState<boolean>(false)
 
   const { isDarkMode, toggleDarkMode } = useTheme()
   const { font, toggleFont } = useFont()
   const { language, toggleLanguage } = useLanguage()
   const { isCursorEnabled, toggleCursor } = useCursor()
   const pathname = usePathname()
-
-  // Save isChatbotVisible to localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("isChatbotVisible", JSON.stringify(isChatbotVisible))
-      console.log("Chatbot visibility saved to localStorage:", isChatbotVisible)
-    }
-  }, [isChatbotVisible])
 
   // Scroll detection for sticky navbar
   useEffect(() => {
@@ -612,15 +606,6 @@ export default function Navbar() {
     }
   }, [user])
 
-  const handleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider()
-      await signInWithPopup(auth, provider)
-    } catch (error) {
-      console.error("Error signing in with Google:", error)
-    }
-  }
-
   const handleLogout = async () => {
     try {
       await signOut(auth)
@@ -631,12 +616,19 @@ export default function Navbar() {
   }
 
   const toggleChatbot = () => {
-    setIsChatbotVisible((prev) => {
-      const newValue = !prev
-      console.log("Chatbot visibility toggled to:", newValue)
-      return newValue
-    })
+    setIsChatbotVisible((prev) => !prev)
   }
+
+  // Debug initial state
+  useEffect(() => {
+    console.log("Initial Navbar state:", {
+      isDarkMode,
+      language,
+      font,
+      isCursorEnabled,
+      isChatbotVisible,
+    })
+  }, [isDarkMode, language, font, isCursorEnabled, isChatbotVisible])
 
   return (
     <>
@@ -691,17 +683,18 @@ export default function Navbar() {
                     isDarkMode={isDarkMode}
                     toggleDarkMode={toggleDarkMode}
                   />
-                  <button
-                    onClick={handleLogin}
+                  <Link
+                    href="/login"
                     className={`flex items-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
                       isDarkMode
                         ? "bg-black text-white border-white"
                         : "bg-white text-black border-black"
                     }`}
+                    aria-label="Sign in"
                   >
                     <LogIn className="w-4 h-4 pixelated" />
                     {translations[language].login}
-                  </button>
+                  </Link>
                 </>
               )}
             </div>
@@ -717,6 +710,7 @@ export default function Navbar() {
                     ? "bg-black text-white border-white"
                     : "bg-white text-black border-black"
                 }`}
+                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMenuOpen ? (
                   <X className="w-5 h-5 pixelated" />
@@ -736,7 +730,6 @@ export default function Navbar() {
           language={language}
           bookmarkCount={bookmarkCount}
           setIsMenuOpen={setIsMenuOpen}
-          handleLogin={handleLogin}
           handleLogout={handleLogout}
           toggleLanguage={toggleLanguage}
           pathname={pathname}

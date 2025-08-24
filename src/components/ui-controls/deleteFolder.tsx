@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Trash2, Check, X, ChevronDown } from "lucide-react"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
+import { translations } from "@/lib/translations"
 import { db, auth } from "@/lib/firebase"
 import { doc, deleteDoc } from "firebase/firestore"
 
@@ -20,6 +22,7 @@ export default function DeleteFolder({
   folders: Folder[]
 }) {
   const { isDarkMode } = useTheme()
+  const { language } = useLanguage()
   const [selectedFolderId, setSelectedFolderId] = useState("")
   const [showModal, setShowModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -28,12 +31,18 @@ export default function DeleteFolder({
 
   const handleDelete = async () => {
     if (!selectedFolderId) {
-      setError("Vui lòng chọn một thư mục để xóa.")
+      setError(
+        translations[language].deleteFolder?.errors?.noFolderSelected ||
+          "Vui lòng chọn một thư mục để xóa."
+      )
       return
     }
 
     if (!auth.currentUser) {
-      setError("Bạn cần đăng nhập để xóa thư mục.")
+      setError(
+        translations[language].deleteFolder?.errors?.notLoggedIn ||
+          "Bạn cần đăng nhập để xóa thư mục."
+      )
       return
     }
 
@@ -41,15 +50,16 @@ export default function DeleteFolder({
     setError(null)
 
     try {
-      // Xóa folder khỏi Firestore
       await deleteDoc(
         doc(db, `users/${auth.currentUser.uid}/folders`, selectedFolderId)
       )
-      // Cập nhật UI ngay lập tức
       onFolderDelete(selectedFolderId)
       setSelectedFolderId("")
       setError(null)
-      setSuccess("Thư mục đã được xóa thành công! ✨")
+      setSuccess(
+        translations[language].deleteFolder?.success ||
+          "Thư mục đã được xóa thành công! ✨"
+      )
 
       setTimeout(() => {
         setSuccess(null)
@@ -57,7 +67,10 @@ export default function DeleteFolder({
       }, 2000)
     } catch (error) {
       console.error("Delete folder error:", error)
-      setError("Không thể xóa thư mục. Vui lòng thử lại.")
+      setError(
+        translations[language].deleteFolder?.errors?.failedToDelete ||
+          "Không thể xóa thư mục. Vui lòng thử lại."
+      )
     } finally {
       setIsLoading(false)
     }
@@ -94,7 +107,10 @@ export default function DeleteFolder({
                 }`}
               />
             </div>
-            <span className="text-base font-semibold">Xóa Thư Mục</span>
+            <span className="text-base font-semibold">
+              {translations[language].deleteFolder?.deleteFolder ||
+                "Xóa Thư Mục"}
+            </span>
           </div>
         </button>
       )}
@@ -178,8 +194,14 @@ export default function DeleteFolder({
                   <Trash2 className="w-3 h-3 pixelated" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">Xóa Thư Mục</h3>
-                  <p className="text-base">Chọn thư mục để xóa</p>
+                  <h3 className="text-xl font-bold">
+                    {translations[language].deleteFolder?.title ||
+                      "Xóa Thư Mục"}
+                  </h3>
+                  <p className="text-base">
+                    {translations[language].deleteFolder?.subtitle ||
+                      "Chọn thư mục để xóa"}
+                  </p>
                 </div>
               </div>
               <button
@@ -198,7 +220,8 @@ export default function DeleteFolder({
                 htmlFor="folder"
                 className="block text-base font-semibold mb-1"
               >
-                Thư mục *
+                {translations[language].deleteFolder?.folderLabel ||
+                  "Thư mục *"}
               </label>
               <div className="relative">
                 <select
@@ -211,7 +234,10 @@ export default function DeleteFolder({
                       : "bg-white text-black border-black"
                   }`}
                 >
-                  <option value="">Chọn thư mục</option>
+                  <option value="">
+                    {translations[language].deleteFolder?.folderPlaceholder ||
+                      "Chọn thư mục"}
+                  </option>
                   {folders.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.title}
@@ -238,7 +264,7 @@ export default function DeleteFolder({
                 } ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
                 disabled={isLoading}
               >
-                Hủy
+                {translations[language].deleteFolder?.cancel || "Hủy"}
               </button>
 
               <button
@@ -264,12 +290,14 @@ export default function DeleteFolder({
                           : "border-black border-t-black"
                       }`}
                     ></div>
-                    Đang xóa...
+                    {translations[language].deleteFolder?.deleting ||
+                      "Đang xóa..."}
                   </>
                 ) : (
                   <>
                     <Trash2 className="w-3 h-3 pixelated" />
-                    Xóa Thư Mục
+                    {translations[language].deleteFolder?.deleteFolder ||
+                      "Xóa Thư Mục"}
                   </>
                 )}
               </button>

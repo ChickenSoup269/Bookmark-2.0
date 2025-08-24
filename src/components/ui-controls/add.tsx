@@ -17,6 +17,8 @@ import {
 import { db, auth } from "@/lib/firebase"
 import { collection, addDoc } from "firebase/firestore"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
+import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
+import { translations } from "@/lib/translations"
 
 type Folder = {
   id: string
@@ -32,6 +34,7 @@ export default function BookmarkForm({
   folders: Folder[]
 }) {
   const { isDarkMode } = useTheme()
+  const { language } = useLanguage()
   const [title, setTitle] = useState("")
   const [url, setUrl] = useState("")
   const [description, setDescription] = useState("")
@@ -44,7 +47,7 @@ export default function BookmarkForm({
   const [isLoading, setIsLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
 
-  const suggestedTags = [
+  const suggestedTags = translations[language].bookmarkForm?.suggestedTags || [
     "code",
     "sáng tạo",
     "giải trí",
@@ -57,12 +60,18 @@ export default function BookmarkForm({
 
   const handleSubmit = async () => {
     if (!title.trim() || !url.trim() || !validateUrl(url)) {
-      setError("Vui lòng điền đầy đủ thông tin hợp lệ.")
+      setError(
+        translations[language].bookmarkForm?.errors?.invalidFields ||
+          "Vui lòng điền đầy đủ thông tin hợp lệ."
+      )
       return
     }
 
     if (!auth.currentUser) {
-      setError("Bạn cần đăng nhập để thêm bookmark.")
+      setError(
+        translations[language].bookmarkForm?.errors?.notLoggedIn ||
+          "Bạn cần đăng nhập để thêm bookmark."
+      )
       return
     }
 
@@ -88,7 +97,10 @@ export default function BookmarkForm({
       setTagInput("")
       setIsTagDropdownOpen(false)
       setError(null)
-      setSuccess("Bookmark đã được thêm thành công! ✨")
+      setSuccess(
+        translations[language].bookmarkForm?.success ||
+          "Bookmark đã được thêm thành công! ✨"
+      )
       onAdd()
 
       setTimeout(() => {
@@ -97,7 +109,10 @@ export default function BookmarkForm({
       }, 2000)
     } catch (error) {
       console.error("Add bookmark error:", error)
-      setError("Không thể thêm bookmark. Vui lòng thử lại.")
+      setError(
+        translations[language].bookmarkForm?.errors?.failedToAdd ||
+          "Không thể thêm bookmark. Vui lòng thử lại."
+      )
     } finally {
       setIsLoading(false)
     }
@@ -162,7 +177,10 @@ export default function BookmarkForm({
                 }`}
               />
             </div>
-            <span className="text-base font-semibold">Thêm Bookmark</span>
+            <span className="text-base font-semibold">
+              {translations[language].bookmarkForm?.addBookmark ||
+                "Thêm Bookmark"}
+            </span>
             <Sparkles
               className={`w-3 h-3 pixelated ${
                 isDarkMode ? "text-white" : "text-black"
@@ -251,8 +269,14 @@ export default function BookmarkForm({
                   <BookOpen className="w-4 h-4 pixelated" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">Thêm Bookmark Mới</h3>
-                  <p className="text-base">Điền thông tin để lưu trang web</p>
+                  <h3 className="text-xl font-bold">
+                    {translations[language].bookmarkForm?.title ||
+                      "Thêm Bookmark Mới"}
+                  </h3>
+                  <p className="text-base">
+                    {translations[language].bookmarkForm?.subtitle ||
+                      "Điền thông tin để lưu trang web"}
+                  </p>
                 </div>
               </div>
               <button
@@ -273,7 +297,8 @@ export default function BookmarkForm({
                   htmlFor="title"
                   className="block text-base font-semibold mb-1"
                 >
-                  Tiêu đề *
+                  {translations[language].bookmarkForm?.titleLabel ||
+                    "Tiêu đề *"}
                 </label>
                 <div className="relative">
                   <Type
@@ -284,7 +309,10 @@ export default function BookmarkForm({
                   <input
                     id="title"
                     type="text"
-                    placeholder="Nhập tiêu đề bookmark..."
+                    placeholder={
+                      translations[language].bookmarkForm?.titlePlaceholder ||
+                      "Nhập tiêu đề bookmark..."
+                    }
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-base ${
@@ -308,7 +336,7 @@ export default function BookmarkForm({
                   htmlFor="url"
                   className="block text-base font-semibold mb-1"
                 >
-                  URL *
+                  {translations[language].bookmarkForm?.urlLabel || "URL *"}
                 </label>
                 <div className="relative">
                   <Globe
@@ -319,7 +347,10 @@ export default function BookmarkForm({
                   <input
                     id="url"
                     type="url"
-                    placeholder="https://example.com"
+                    placeholder={
+                      translations[language].bookmarkForm?.urlPlaceholder ||
+                      "https://example.com"
+                    }
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     className={`w-full pl-10 pr-3 py-2 border-2 focus:outline-none transition-all duration-200 steps-4 text-base ${
@@ -342,7 +373,8 @@ export default function BookmarkForm({
                 {url && !validateUrl(url) && (
                   <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                     <X className="w-3 h-3 pixelated" />
-                    URL không hợp lệ
+                    {translations[language].bookmarkForm?.errors?.invalidUrl ||
+                      "URL không hợp lệ"}
                   </p>
                 )}
               </div>
@@ -353,7 +385,8 @@ export default function BookmarkForm({
                   htmlFor="description"
                   className="block text-base font-semibold mb-1"
                 >
-                  Mô tả
+                  {translations[language].bookmarkForm?.descriptionLabel ||
+                    "Mô tả"}
                 </label>
                 <div className="relative">
                   <FileText
@@ -363,7 +396,11 @@ export default function BookmarkForm({
                   />
                   <textarea
                     id="description"
-                    placeholder="Mô tả ngắn về trang web này..."
+                    placeholder={
+                      translations[language].bookmarkForm
+                        ?.descriptionPlaceholder ||
+                      "Mô tả ngắn về trang web này..."
+                    }
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
@@ -390,7 +427,8 @@ export default function BookmarkForm({
                   htmlFor="folder"
                   className="block text-base font-semibold mb-1"
                 >
-                  Thư mục
+                  {translations[language].bookmarkForm?.folderLabel ||
+                    "Thư mục"}
                 </label>
                 <div className="relative">
                   <Folder
@@ -408,7 +446,10 @@ export default function BookmarkForm({
                         : "bg-white text-black border-black"
                     }`}
                   >
-                    <option value="">Chọn thư mục (mặc định: Other)</option>
+                    <option value="">
+                      {translations[language].bookmarkForm?.folderPlaceholder ||
+                        "Chọn thư mục (mặc định: Other)"}
+                    </option>
                     {folders.map((folder) => (
                       <option key={folder.id} value={folder.id}>
                         {folder.title}
@@ -429,7 +470,7 @@ export default function BookmarkForm({
                   htmlFor="tags"
                   className="block text-base font-semibold mb-1"
                 >
-                  Tags
+                  {translations[language].bookmarkForm?.tagsLabel || "Tags"}
                 </label>
                 <div className="relative">
                   <Link
@@ -440,7 +481,10 @@ export default function BookmarkForm({
                   <input
                     id="tags"
                     type="text"
-                    placeholder="Thêm tag tùy chỉnh (nhấn Enter)..."
+                    placeholder={
+                      translations[language].bookmarkForm?.tagsPlaceholder ||
+                      "Thêm tag tùy chỉnh (nhấn Enter)..."
+                    }
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -535,7 +579,7 @@ export default function BookmarkForm({
                   } ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
                   disabled={isLoading}
                 >
-                  Hủy
+                  {translations[language].bookmarkForm?.cancel || "Hủy"}
                 </button>
 
                 <button
@@ -561,12 +605,14 @@ export default function BookmarkForm({
                             : "border-black border-t-black"
                         }`}
                       ></div>
-                      Đang thêm...
+                      {translations[language].bookmarkForm?.adding ||
+                        "Đang thêm..."}
                     </>
                   ) : (
                     <>
                       <Plus className="w-4 h-4 pixelated" />
-                      Thêm Bookmark
+                      {translations[language].bookmarkForm?.addBookmark ||
+                        "Thêm Bookmark"}
                     </>
                   )}
                 </button>
@@ -601,22 +647,40 @@ export default function BookmarkForm({
                 isDarkMode ? "text-gray-400" : "text-gray-500"
               }`}
             >
-              {!title && !url
-                ? "Bắt đầu bằng cách nhập tiêu đề và URL"
-                : title && !url
-                ? "Tiếp tục với URL"
-                : title && url && !validateUrl(url)
-                ? "URL cần được sửa"
-                : title && url && validateUrl(url) && !description
-                ? "Tùy chọn: Thêm mô tả, thư mục hoặc tag"
-                : title &&
-                  url &&
-                  validateUrl(url) &&
-                  description &&
-                  !folderId &&
-                  !tags.length
-                ? "Tùy chọn: Thêm thư mục hoặc tag"
-                : "Hoàn tất! Sẵn sàng để thêm bookmark"}
+              {translations[language].bookmarkForm?.progressMessages?.[
+                !title && !url
+                  ? "start"
+                  : title && !url
+                  ? "url"
+                  : title && url && !validateUrl(url)
+                  ? "invalidUrl"
+                  : title && url && validateUrl(url) && !description
+                  ? "optionalFields"
+                  : title &&
+                    url &&
+                    validateUrl(url) &&
+                    description &&
+                    !folderId &&
+                    !tags.length
+                  ? "optionalFolderOrTags"
+                  : "ready"
+              ] ||
+                (!title && !url
+                  ? "Bắt đầu bằng cách nhập tiêu đề và URL"
+                  : title && !url
+                  ? "Tiếp tục với URL"
+                  : title && url && !validateUrl(url)
+                  ? "URL cần được sửa"
+                  : title && url && validateUrl(url) && !description
+                  ? "Tùy chọn: Thêm mô tả, thư mục hoặc tag"
+                  : title &&
+                    url &&
+                    validateUrl(url) &&
+                    description &&
+                    !folderId &&
+                    !tags.length
+                  ? "Tùy chọn: Thêm thư mục hoặc tag"
+                  : "Hoàn tất! Sẵn sàng để thêm bookmark")}
             </p>
           </div>
         </>
