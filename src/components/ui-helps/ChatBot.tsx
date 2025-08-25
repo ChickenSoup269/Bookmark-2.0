@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { MessageCircle, X, Maximize2, Minimize2, Download } from "lucide-react"
 import { translations } from "@/lib/translations"
 import { sendMessageToGemini } from "@/lib/gemini"
-import { addBookmark } from "@/lib/bookmark"
+import { addBookmark, deleteBookmark } from "@/lib/bookmark"
 import { auth } from "@/lib/firebase"
 
 interface Message {
@@ -87,7 +87,7 @@ export default function Chatbot({
 
       // Thử bắt JSON trong reply
       let actionData = null
-      const jsonMatch = botReply.match(/\{.*\}/s)
+      const jsonMatch = botReply.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         try {
           actionData = JSON.parse(jsonMatch[0])
@@ -98,19 +98,38 @@ export default function Chatbot({
 
       // Nếu có action add bookmark
       if (actionData?.action === "add") {
+        if (!user) throw new Error("User chưa đăng nhập")
         await addBookmark(user.uid, {
           title: actionData.title,
           url: actionData.url,
-          description: actionData.description,
-          folderId: actionData.folderId,
-          tags: actionData.tags,
+          description: actionData.description || "",
+          folderId: actionData.folderId || null,
+          tags: actionData.tags || [],
         })
-        botReply("Đã thêm bookmark thành công ✅")
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            text: "✅ Đã thêm bookmark thành công",
+            sender: "bot",
+            timestamp: new Date().toLocaleTimeString(),
+          },
+        ])
       }
 
       if (actionData?.action === "delete") {
+        if (!user) throw new Error("User chưa đăng nhập")
         await deleteBookmark(user.uid, actionData.url)
-        botReply("Đã xoá bookmark thành công 🗑️")
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            text: "✅ Đã thêm bookmark thành công",
+            sender: "bot",
+            timestamp: new Date().toLocaleTimeString(),
+          },
+        ])
       }
 
       const botMessage: Message = {
