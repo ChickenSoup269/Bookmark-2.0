@@ -89,10 +89,10 @@ const ExportImportDropdown = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   return (
-    <div className="relative z-1">
+    <div className="relative">
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className={`flex items-center gap-2 px-4 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium  ${
+        className={`flex items-center gap-2 px-4 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
           isDarkMode
             ? "bg-black text-white border-white"
             : "bg-white text-black border-black"
@@ -116,7 +116,7 @@ const ExportImportDropdown = ({
               onExport()
               setIsDropdownOpen(false)
             }}
-            className={`w-full flex items-center gap-2 px-4 py-2 border-b-2 hover:bg-gray-300 cursor-pointer transition-all duration-200 steps-4 ${
+            className={`w-full flex items-center gap-2 px-4 py-2 border-b-2 hover:scale-105 transition-all duration-200 steps-4 ${
               isDarkMode
                 ? "bg-black text-white border-white"
                 : "bg-white text-black border-black"
@@ -130,7 +130,7 @@ const ExportImportDropdown = ({
               onImport()
               setIsDropdownOpen(false)
             }}
-            className={`w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-300 cursor-pointer transition-all duration-200 steps-4 ${
+            className={`w-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-all duration-200 steps-4 ${
               isDarkMode
                 ? "bg-black text-white border-white"
                 : "bg-white text-black border-black"
@@ -141,6 +141,69 @@ const ExportImportDropdown = ({
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+const DeleteConfirmPopup = ({
+  isDarkMode,
+  language,
+  font,
+  onConfirm,
+  onCancel,
+}: {
+  isDarkMode: boolean
+  language: keyof typeof translations
+  font: string
+  onConfirm: () => void
+  onCancel: () => void
+}) => {
+  return (
+    <div
+      className={`fixed inset-0 flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-200 steps-4 ${
+        isDarkMode ? "bg-white/50" : "bg-black/50"
+      }`}
+    >
+      <div
+        className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+          font === "gohu" ? "font-gohu" : "font-normal"
+        } ${
+          isDarkMode
+            ? "bg-black text-white border-white shadow-white"
+            : "bg-white text-black border-black shadow-black"
+        }`}
+      >
+        <h3 className="text-2xl font-bold mb-6">
+          {translations[language].confirmDeleteBookmark || "Delete Bookmark"}
+        </h3>
+        <p className="mb-6">
+          {translations[language].confirmDeleteBookmark ||
+            "Are you sure you want to delete this bookmark?"}
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onConfirm}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+              isDarkMode
+                ? "bg-black text-white border-white"
+                : "bg-white text-black border-black"
+            }`}
+          >
+            <Check className="w-5 h-5 pixelated" />
+            {translations[language].yes || "Yes"}
+          </button>
+          <button
+            onClick={onCancel}
+            className={`flex-1 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+              isDarkMode
+                ? "bg-black text-white border-white"
+                : "bg-white text-black border-black"
+            }`}
+          >
+            {translations[language].no || "No"}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -168,6 +231,7 @@ export default function BookmarkManager() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
   const [showImportJson, setShowImportJson] = useState(false)
+  const [deleteBookmarkId, setDeleteBookmarkId] = useState<string | null>(null)
 
   // Kiểm tra trạng thái đăng nhập
   useEffect(() => {
@@ -332,16 +396,17 @@ export default function BookmarkManager() {
   }
 
   const handleDeleteBookmark = async (id: string) => {
-    if (
-      !auth.currentUser ||
-      !confirm(
-        translations[language].confirmDeleteBookmark ||
-          "Are you sure you want to delete this bookmark?"
-      )
-    )
-      return
+    if (!auth.currentUser) return
+    setDeleteBookmarkId(id)
+  }
+
+  const confirmDeleteBookmark = async () => {
+    if (!deleteBookmarkId || !auth.currentUser) return
     try {
-      await deleteDoc(doc(db, `users/${auth.currentUser.uid}/bookmarks`, id))
+      await deleteDoc(
+        doc(db, `users/${auth.currentUser.uid}/bookmarks`, deleteBookmarkId)
+      )
+      setDeleteBookmarkId(null)
     } catch (error) {
       console.error("Error deleting bookmark:", error)
     }
@@ -880,8 +945,12 @@ export default function BookmarkManager() {
               </div>
             )}
           </div>
-          <div className="flex mb-4 gap-4">
-            <BookmarkForm onAdd={() => router.refresh()} folders={folders} />
+          <div className="flex justify-end mb-4 gap-4">
+            <BookmarkForm
+              onAdd={() => router.refresh()}
+              folders={folders}
+              bookmarks={bookmarks}
+            />
             <DeleteFolder
               onFolderDelete={() => router.refresh()}
               folders={folders}
@@ -971,6 +1040,8 @@ export default function BookmarkManager() {
         >
           <div
             className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+              font === "gohu" ? "font-gohu" : "font-normal"
+            } ${
               isDarkMode
                 ? "bg-black text-white border-white shadow-white"
                 : "bg-white text-black border-black shadow-black"
@@ -1029,6 +1100,8 @@ export default function BookmarkManager() {
         >
           <div
             className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+              font === "gohu" ? "font-gohu" : "font-normal"
+            } ${
               isDarkMode
                 ? "bg-black text-white border-white shadow-white"
                 : "bg-white text-black border-black shadow-black"
@@ -1135,6 +1208,8 @@ export default function BookmarkManager() {
         >
           <div
             className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+              font === "gohu" ? "font-gohu" : "font-normal"
+            } ${
               isDarkMode
                 ? "bg-black text-white border-white shadow-white"
                 : "bg-white text-black border-black shadow-black"
@@ -1232,6 +1307,15 @@ export default function BookmarkManager() {
           }}
           folders={folders}
           onClose={() => setShowImportJson(false)}
+        />
+      )}
+      {deleteBookmarkId && (
+        <DeleteConfirmPopup
+          isDarkMode={isDarkMode}
+          language={language}
+          font={font}
+          onConfirm={confirmDeleteBookmark}
+          onCancel={() => setDeleteBookmarkId(null)}
         />
       )}
     </div>

@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from "react"
 import { MessageCircle, X, Maximize2, Minimize2, Download } from "lucide-react"
 import { translations } from "@/lib/translations"
+import { sendMessageToGemini } from "@/lib/gemini"
+import { addBookmark } from "@/lib/bookmark"
+import { auth } from "@/lib/firebase"
 
 interface Message {
   id: number
@@ -38,15 +41,11 @@ export default function Chatbot({
   ])
   const [inputText, setInputText] = useState("")
   const [isExpanded, setIsExpanded] = useState(false)
+  const [user, setUser] = useState<import("firebase/auth").User | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const toggleChat = () => {
-    setIsChatOpen(!isChatOpen)
-  }
-
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded)
-  }
+  const toggleChat = () => setIsChatOpen(!isChatOpen)
+  const toggleExpanded = () => setIsExpanded(!isExpanded)
 
   const exportChatHistory = () => {
     const chatHistory = messages
@@ -67,7 +66,7 @@ export default function Chatbot({
     URL.revokeObjectURL(url)
   }
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim()) return
 
     const newUserMessage: Message = {
@@ -77,29 +76,68 @@ export default function Chatbot({
       timestamp: new Date().toLocaleTimeString(),
     }
 
-    // Mock bot response
-    const botResponse: Message = {
-      id: messages.length + 2,
-      text: translations[language].chatResponse || "I received your message!",
-      sender: "bot",
-      timestamp: new Date().toLocaleTimeString(),
-    }
-
-    setMessages([...messages, newUserMessage, botResponse])
+    setMessages([...messages, newUserMessage])
     setInputText("")
+
+    try {
+      const historyText = messages
+        .map((m) => `${m.sender}: ${m.text}`)
+        .join("\n")
+      const botReply = await sendMessageToGemini(historyText, inputText)
+
+      // Thử bắt JSON trong reply
+      let actionData = null
+      const jsonMatch = botReply.match(/\{.*\}/s)
+      if (jsonMatch) {
+        try {
+          actionData = JSON.parse(jsonMatch[0])
+        } catch (err) {
+          console.error("Parse JSON lỗi:", err)
+        }
+      }
+
+      // Nếu có action add bookmark
+      if (actionData?.action === "add") {
+        await addBookmark(user.uid, {
+          title: actionData.title,
+          url: actionData.url,
+          description: actionData.description,
+          folderId: actionData.folderId,
+          tags: actionData.tags,
+        })
+        botReply("Đã thêm bookmark thành công ✅")
+      }
+
+      if (actionData?.action === "delete") {
+        await deleteBookmark(user.uid, actionData.url)
+        botReply("Đã xoá bookmark thành công 🗑️")
+      }
+
+      const botMessage: Message = {
+        id: messages.length + 2,
+        text: botReply,
+        sender: "bot",
+        timestamp: new Date().toLocaleTimeString(),
+      }
+
+      setMessages((prev) => [...prev, botMessage])
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  // Scroll to bottom when new messages are added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Handle Enter key for sending messages
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSendMessage()
-    }
+    if (e.key === "Enter") handleSendMessage()
   }
+
+  useEffect(() => {
+    const unsub = auth.onAuthStateChanged((u) => setUser(u))
+    return () => unsub()
+  }, [])
 
   if (!isChatbotVisible) return null
 
@@ -116,6 +154,7 @@ export default function Chatbot({
       >
         <MessageCircle className="w-6 h-6 pixelated" />
       </button>
+
       {isChatOpen && (
         <div
           className={`fixed ${
@@ -136,25 +175,21 @@ export default function Chatbot({
               <div className="flex gap-2">
                 <button
                   onClick={exportChatHistory}
-                  className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  className={`p-2 border-2 rounded-none ${
                     isDarkMode
                       ? "bg-black text-white border-white"
                       : "bg-white text-black border-black"
                   }`}
-                  aria-label="Export chat history"
-                  title="Xuất lịch sử trò chuyện"
                 >
                   <Download className="w-4 h-4 pixelated" />
                 </button>
                 <button
                   onClick={toggleExpanded}
-                  className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  className={`p-2 border-2 rounded-none ${
                     isDarkMode
                       ? "bg-black text-white border-white"
                       : "bg-white text-black border-black"
                   }`}
-                  aria-label="Toggle expanded view"
-                  title={isExpanded ? "Thu nhỏ" : "Phóng to"}
                 >
                   {isExpanded ? (
                     <Minimize2 className="w-4 h-4 pixelated" />
@@ -164,17 +199,18 @@ export default function Chatbot({
                 </button>
                 <button
                   onClick={toggleChat}
-                  className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                  className={`p-2 border-2 rounded-none ${
                     isDarkMode
                       ? "bg-black text-white border-white"
                       : "bg-white text-black border-black"
                   }`}
-                  aria-label="Close chatbot"
                 >
                   <X className="w-4 h-4 pixelated" />
                 </button>
               </div>
             </div>
+
+            {/* Chat */}
             <div className="flex-1 border-2 p-2 overflow-y-auto">
               {messages.map((message) => (
                 <div
@@ -194,15 +230,15 @@ export default function Chatbot({
                         : isDarkMode
                         ? "bg-black text-white border-white"
                         : "bg-white text-black border-black"
-                    } ${font === "gohu" ? "font-gohu" : "font-normal"}`}
+                    }`}
                   >
-                    <p className={`${isExpanded ? "text-base" : "text-sm"}`}>
+                    <p className={isExpanded ? "text-base" : "text-sm"}>
                       {message.text}
                     </p>
                     <p
-                      className={`${
-                        isExpanded ? "text-sm" : "text-xs"
-                      } opacity-50`}
+                      className={
+                        isExpanded ? "text-sm opacity-50" : "text-xs opacity-50"
+                      }
                     >
                       {message.timestamp}
                     </p>
@@ -212,35 +248,31 @@ export default function Chatbot({
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Input */}
             <div className="mt-2 flex gap-2">
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={
-                  translations[language].chatPlaceholder ||
-                  "Type your message..."
-                }
+                placeholder="Type your message..."
                 className={`flex-1 p-2 border-2 rounded-none ${
                   isExpanded ? "text-base" : "text-sm"
                 } ${
                   isDarkMode
                     ? "bg-black text-white border-white placeholder-gray-400"
                     : "bg-white text-black border-black placeholder-gray-500"
-                } ${font === "gohu" ? "font-gohu" : "font-normal"}`}
-                aria-label="Chat input"
+                }`}
               />
               <button
                 onClick={handleSendMessage}
-                className={`p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+                className={`p-2 border-2 rounded-none ${
                   isDarkMode
                     ? "bg-black text-white border-white"
                     : "bg-white text-black border-black"
                 }`}
-                aria-label="Send message"
               >
-                {translations[language].send || "Send"}
+                Gửi
               </button>
             </div>
           </div>

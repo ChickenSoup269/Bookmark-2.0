@@ -19,6 +19,7 @@ import { db, auth } from "@/lib/firebase"
 import { collection, addDoc } from "firebase/firestore"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
+import { useFont } from "@/lib/controls-setting-change/changeTextFont"
 import { translations } from "@/lib/translations"
 
 type Folder = {
@@ -27,15 +28,80 @@ type Folder = {
   color?: string
 }
 
-export default function BookmarkForm({
-  onAdd,
-  folders,
-}: {
+type Bookmark = {
+  id: string
+  title?: string
+  url?: string
+  description?: string
+  folderId?: string
+  tags?: string[]
+  createdAt?: { toMillis: () => number }
+  timestamp?: string
+  favorite?: boolean
+  favicon?: string
+  [key: string]: unknown
+}
+
+type Props = {
   onAdd: () => void
   folders: Folder[]
-}) {
+  bookmarks: Bookmark[]
+}
+
+const DuplicateUrlPopup = ({
+  isDarkMode,
+  language,
+  font,
+  onClose,
+}: {
+  isDarkMode: boolean
+  language: keyof typeof translations
+  font: string
+  onClose: () => void
+}) => {
+  return (
+    <div
+      className={`fixed inset-0 flex items-center justify-center p-4 z-50 animate-in fade-in-0 duration-200 steps-4 ${
+        isDarkMode ? "bg-black/50" : "bg-gray-500/50"
+      }`}
+    >
+      <div
+        className={`p-8 max-w-md w-full border-2 shadow-[8px_8px_0_0] animate-in zoom-in-95 duration-200 steps-4 ${
+          font === "gohu" ? "font-gohu" : "font-normal"
+        } ${
+          isDarkMode
+            ? "bg-black text-white border-white shadow-white"
+            : "bg-white text-black border-black shadow-black"
+        }`}
+      >
+        <h3 className="text-2xl font-bold mb-6">
+          {translations[language].duplicateUrl || "Duplicate URL"}
+        </h3>
+        <p className="mb-6">
+          {translations[language].duplicateUrl ||
+            "Bookmark with this URL already exists!"}
+        </p>
+        <div className="flex justify-center">
+          <button
+            onClick={onClose}
+            className={`flex items-center justify-center gap-2 py-3 px-6 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium ${
+              isDarkMode
+                ? "bg-black text-white border-white"
+                : "bg-white text-black border-black"
+            }`}
+          >
+            {translations[language].ok || "OK"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function BookmarkForm({ onAdd, folders, bookmarks }: Props) {
   const { isDarkMode } = useTheme()
   const { language } = useLanguage()
+  const { font } = useFont()
   const [title, setTitle] = useState("")
   const [url, setUrl] = useState("")
   const [description, setDescription] = useState("")
@@ -47,6 +113,7 @@ export default function BookmarkForm({
   const [success, setSuccess] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [showDuplicatePopup, setShowDuplicatePopup] = useState(false)
 
   const suggestedTags = translations[language].bookmarkForm?.suggestedTags || [
     "code",
@@ -73,7 +140,7 @@ export default function BookmarkForm({
       const domain = new URL(url).hostname
       return `https://icons.duckduckgo.com/ip3/${domain}.ico`
     } catch {
-      return "/images/default-favicon.png" // Favicon mặc định nếu URL không hợp lệ
+      return "/images/default-favicon.png"
     }
   }
 
@@ -91,6 +158,15 @@ export default function BookmarkForm({
         translations[language].bookmarkForm?.errors?.notLoggedIn ||
           "Bạn cần đăng nhập để thêm bookmark."
       )
+      return
+    }
+
+    // Kiểm tra URL trùng lặp
+    const isDuplicate = bookmarks.some(
+      (bookmark) => bookmark.url?.toLowerCase() === url.trim().toLowerCase()
+    )
+    if (isDuplicate) {
+      setShowDuplicatePopup(true)
       return
     }
 
@@ -216,6 +292,8 @@ export default function BookmarkForm({
 
           <div
             className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-11/12 max-w-md max-h-[90vh] overflow-y-auto p-4 border-2 shadow-[8px_8px_0_0] animate-in zoom-in-50 duration-200 steps-4 mt-10 ${
+              font === "gohu" ? "font-gohu" : "font-normal"
+            } ${
               isDarkMode
                 ? "bg-black text-white border-white shadow-white"
                 : "bg-white text-black border-black shadow-black"
@@ -775,6 +853,15 @@ export default function BookmarkForm({
             </p>
           </div>
         </>
+      )}
+
+      {showDuplicatePopup && (
+        <DuplicateUrlPopup
+          isDarkMode={isDarkMode}
+          language={language}
+          font={font}
+          onClose={() => setShowDuplicatePopup(false)}
+        />
       )}
     </div>
   )
