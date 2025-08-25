@@ -325,7 +325,8 @@ const MobileMenu = ({
               <h3 className="text-lg font-bold">
                 {translations[language].welcome}
               </h3>
-              <p className="text-xs">{translations[language].loginPrompt}</p>
+
+              {/* <p className="text-xs">{translations[language].loginPrompt}</p> */}
             </div>
             <Link
               href="/login"

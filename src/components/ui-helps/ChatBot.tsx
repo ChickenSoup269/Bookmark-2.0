@@ -120,7 +120,7 @@ export default function Chatbot({
         <div
           className={`fixed ${
             isExpanded
-              ? "bottom-4 right-4 left-4 top-4"
+              ? "bottom-4 right-4 w-120 h-146"
               : "bottom-16 right-4 w-80 h-96"
           } border-2 shadow-[8px_8px_0_0] rounded-none transition-all duration-300 steps-4 z-50 ${
             isDarkMode
@@ -211,6 +211,7 @@ export default function Chatbot({
               ))}
               <div ref={messagesEndRef} />
             </div>
+
             <div className="mt-2 flex gap-2">
               <input
                 type="text"

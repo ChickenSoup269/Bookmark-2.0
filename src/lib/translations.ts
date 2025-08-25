@@ -52,7 +52,11 @@ export const translations = {
     otherFolder: "Other",
     visit: "Visit",
     confirmDeleteBookmark: "Are you sure you want to delete this bookmark?",
-    loginPrompt: "đụ má mày login đi thằng chó",
+    exportImport: "Export/Import",
+    exportJson: "Export as JSON",
+    importJson: "Import from JSON",
+    noBookmarksToExport: "No bookmarks to export!",
+    clearAll: "Clear",
     hero: {
       title: "Bookmark Manager",
       subtitle:
@@ -142,6 +146,7 @@ export const translations = {
       title: "Add New Bookmark",
       subtitle: "Fill in the details to save a website",
       addBookmark: "Add Bookmark",
+      addBookmarkShort: "Add",
       cancel: "Cancel",
       titleLabel: "Title *",
       titlePlaceholder: "Enter bookmark title...",
@@ -286,6 +291,11 @@ export const translations = {
     otherFolder: "Khác",
     visit: "Truy cập",
     confirmDeleteBookmark: "Bạn có chắc chắn muốn xóa bookmark này không?",
+    exportImport: "Xuất/Nhập",
+    exportJson: "Xuất dạng JSON",
+    importJson: "Nhập từ JSON",
+    noBookmarksToExport: "Không có bookmark để xuất!",
+    clearAll: "Xóa hết",
     hero: {
       title: "Quản Lý Bookmark",
       subtitle:
@@ -376,6 +386,7 @@ export const translations = {
       title: "Thêm Bookmark Mới",
       subtitle: "Điền thông tin để lưu trang web",
       addBookmark: "Thêm Bookmark",
+      addBookmarkShort: "Thêm",
       cancel: "Hủy",
       titleLabel: "Tiêu đề *",
       titlePlaceholder: "Nhập tiêu đề bookmark...",

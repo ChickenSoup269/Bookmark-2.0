@@ -16,6 +16,8 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  Download,
+  Upload,
 } from "lucide-react"
 import { db, auth } from "@/lib/firebase"
 import {
@@ -31,6 +33,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import BookmarkForm from "@/components/ui-controls/add"
 import DeleteFolder from "@/components/ui-controls/DeleteFolder"
+import ImportJsonBookmarks from "@/components/ui-controls/ImportJsonBookmarks"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
 import { useFont } from "@/lib/controls-setting-change/changeTextFont"
@@ -45,6 +48,7 @@ type Bookmark = {
   folderId?: string
   tags?: string[]
   createdAt?: { toMillis: () => number }
+  timestamp?: string
   favorite?: boolean
   favicon?: string
   [key: string]: unknown
@@ -69,6 +73,78 @@ const colorPalette = [
   "#6B7280", // Xám trung tính
 ]
 
+const ExportImportDropdown = ({
+  isDarkMode,
+  language,
+  font,
+  onExport,
+  onImport,
+}: {
+  isDarkMode: boolean
+  language: keyof typeof translations
+  font: string
+  onExport: () => void
+  onImport: () => void
+}) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+  return (
+    <div className="relative z-1">
+      <button
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        className={`flex items-center gap-2 px-4 py-3 border-2 hover:scale-105 transition-all duration-200 steps-4 font-medium  ${
+          isDarkMode
+            ? "bg-black text-white border-white"
+            : "bg-white text-black border-black"
+        }`}
+      >
+        <Download className="w-5 h-5 pixelated" />
+        {translations[language].exportImport || "Export/Import"}
+      </button>
+      {isDropdownOpen && (
+        <div
+          className={`absolute right-0 mt-2 w-48 border-2 shadow-[8px_8px_0_0] animate-in slide-in-from-top-2 duration-200 steps-4 ${
+            font === "gohu" ? "font-gohu" : "font-normal"
+          } ${
+            isDarkMode
+              ? "bg-black text-white border-white shadow-white"
+              : "bg-white text-black border-black shadow-black"
+          }`}
+        >
+          <button
+            onClick={() => {
+              onExport()
+              setIsDropdownOpen(false)
+            }}
+            className={`w-full flex items-center gap-2 px-4 py-2 border-b-2 hover:bg-gray-300 cursor-pointer transition-all duration-200 steps-4 ${
+              isDarkMode
+                ? "bg-black text-white border-white"
+                : "bg-white text-black border-black"
+            }`}
+          >
+            <Download className="w-4 h-4 pixelated" />
+            {translations[language].exportJson || "Export as JSON"}
+          </button>
+          <button
+            onClick={() => {
+              onImport()
+              setIsDropdownOpen(false)
+            }}
+            className={`w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-300 cursor-pointer transition-all duration-200 steps-4 ${
+              isDarkMode
+                ? "bg-black text-white border-white"
+                : "bg-white text-black border-black"
+            }`}
+          >
+            <Upload className="w-4 h-4 pixelated" />
+            {translations[language].importJson || "Import from JSON"}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function BookmarkManager() {
   const { isDarkMode } = useTheme()
   const { language } = useLanguage()
@@ -91,6 +167,7 @@ export default function BookmarkManager() {
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
+  const [showImportJson, setShowImportJson] = useState(false)
 
   // Kiểm tra trạng thái đăng nhập
   useEffect(() => {
@@ -270,6 +347,26 @@ export default function BookmarkManager() {
     }
   }
 
+  const handleExportJson = () => {
+    if (!bookmarks.length) {
+      alert(
+        translations[language].noBookmarksToExport || "No bookmarks to export!"
+      )
+      return
+    }
+    const data = JSON.stringify(bookmarks, null, 2)
+    const blob = new Blob([data], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `bookmarks_${new Date().toISOString()}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    console.log("Bookmarks exported as JSON")
+  }
+
   const getFolderColor = (folderId: string) => {
     const folder = folders.find((f) => f.id === folderId)
     const color = folder?.color || "#6B7280"
@@ -328,7 +425,7 @@ export default function BookmarkManager() {
                     className="w-6 h-6"
                     onError={(e) =>
                       (e.currentTarget.src = "/images/default-favicon.png")
-                    } // Fallback nếu favicon không tải được
+                    }
                   />
                 )}
                 {bookmark.favorite && (
@@ -672,6 +769,13 @@ export default function BookmarkManager() {
               <FolderPlus className="w-5 h-5 pixelated" />
               {translations[language].newFolder || "New Folder"}
             </button>
+            <ExportImportDropdown
+              isDarkMode={isDarkMode}
+              language={language}
+              font={font}
+              onExport={handleExportJson}
+              onImport={() => setShowImportJson(true)}
+            />
           </div>
           {showFilters && (
             <div
@@ -776,7 +880,7 @@ export default function BookmarkManager() {
               </div>
             )}
           </div>
-          <div className="flex justify-end mb-4">
+          <div className="flex mb-4 gap-4">
             <BookmarkForm onAdd={() => router.refresh()} folders={folders} />
             <DeleteFolder
               onFolderDelete={() => router.refresh()}
@@ -1119,6 +1223,16 @@ export default function BookmarkManager() {
             </div>
           </div>
         </div>
+      )}
+      {showImportJson && (
+        <ImportJsonBookmarks
+          onImport={() => {
+            router.refresh()
+            setShowImportJson(false)
+          }}
+          folders={folders}
+          onClose={() => setShowImportJson(false)}
+        />
       )}
     </div>
   )

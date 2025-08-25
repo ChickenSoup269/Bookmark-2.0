@@ -9,10 +9,11 @@ import {
   Check,
   X,
   Sparkles,
-  BookOpen,
+  Bookmark,
   Globe,
   Folder,
   ChevronDown,
+  Trash,
 } from "lucide-react"
 import { db, auth } from "@/lib/firebase"
 import { collection, addDoc } from "firebase/firestore"
@@ -97,10 +98,7 @@ export default function BookmarkForm({
     setError(null)
 
     try {
-      // Lấy favicon URL
       const faviconUrl = getFaviconUrl(url)
-
-      // Thêm bookmark vào Firebase
       await addDoc(collection(db, `users/${auth.currentUser.uid}/bookmarks`), {
         title,
         url,
@@ -109,10 +107,9 @@ export default function BookmarkForm({
         tags,
         createdAt: new Date(),
         favorite: false,
-        favicon: faviconUrl, // Thêm favicon vào bookmark
+        favicon: faviconUrl,
       })
 
-      // Reset form
       setTitle("")
       setUrl("")
       setDescription("")
@@ -153,10 +150,7 @@ export default function BookmarkForm({
     setTags(tags.filter((t) => t !== tag))
   }
 
-  const handleClose = () => {
-    setShowForm(false)
-    setError(null)
-    setSuccess(null)
+  const handleClearAll = () => {
     setTitle("")
     setUrl("")
     setDescription("")
@@ -164,13 +158,19 @@ export default function BookmarkForm({
     setTags([])
     setTagInput("")
     setIsTagDropdownOpen(false)
+    setError(null)
+    setSuccess(null)
+  }
+
+  const handleClose = () => {
+    handleClearAll()
+    setShowForm(false)
   }
 
   const isFormValid = title.trim() && url.trim() && validateUrl(url)
 
   return (
     <div className="relative mr-2">
-      {/* Toggle Button */}
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
@@ -205,10 +205,8 @@ export default function BookmarkForm({
         </button>
       )}
 
-      {/* Modal */}
       {showForm && (
         <>
-          {/* Overlay */}
           <div
             className={`fixed inset-0 z-40 transition-all duration-200 steps-4 ${
               isDarkMode ? "bg-black/50" : "bg-gray-500/50"
@@ -216,15 +214,13 @@ export default function BookmarkForm({
             onClick={handleClose}
           ></div>
 
-          {/* Form Modal */}
           <div
-            className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-11/12 max-w-md max-h-[90vh] overflow-y-auto p-4 border-2 shadow-[8px_8px_0_0] animate-in zoom-in-50 duration-200 steps-4 ${
+            className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-11/12 max-w-md max-h-[90vh] overflow-y-auto p-4 border-2 shadow-[8px_8px_0_0] animate-in zoom-in-50 duration-200 steps-4 mt-10 ${
               isDarkMode
                 ? "bg-black text-white border-white shadow-white"
                 : "bg-white text-black border-black shadow-black"
             }`}
           >
-            {/* Success/Error Messages */}
             {success && (
               <div
                 className={`mb-4 p-2 border-2 shadow-[8px_8px_0_0] animate-in slide-in-from-top-2 duration-200 steps-4 ${
@@ -271,7 +267,6 @@ export default function BookmarkForm({
               </div>
             )}
 
-            {/* Form Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div
@@ -281,7 +276,7 @@ export default function BookmarkForm({
                       : "bg-white border-black"
                   }`}
                 >
-                  <BookOpen className="w-4 h-4 pixelated" />
+                  <Bookmark className="w-4 h-4 pixelated" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">
@@ -304,22 +299,35 @@ export default function BookmarkForm({
               </button>
             </div>
 
-            {/* Form Content */}
             <form className="space-y-4">
-              {/* Title Input */}
               <div className="group">
-                <label
-                  htmlFor="title"
-                  className="block text-base font-semibold mb-1"
-                >
-                  {translations[language].bookmarkForm?.titleLabel ||
-                    "Tiêu đề *"}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label
+                    htmlFor="title"
+                    className="block text-base font-semibold"
+                  >
+                    {translations[language].bookmarkForm?.titleLabel ||
+                      "Tiêu đề *"}
+                  </label>
+                  {title && (
+                    <button
+                      type="button"
+                      onClick={() => setTitle("")}
+                      className={`p-1 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                        isDarkMode
+                          ? "bg-black border-white"
+                          : "bg-white border-black"
+                      }`}
+                    >
+                      <X className="w-3 h-3 pixelated" />
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <Type
                     className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pixelated ${
                       isDarkMode ? "text-white" : "text-black"
-                    } group-focus-within:text-purple-500`}
+                    } group-focus-within:text-blue-600`}
                   />
                   <input
                     id="title"
@@ -345,19 +353,33 @@ export default function BookmarkForm({
                 </div>
               </div>
 
-              {/* URL Input */}
               <div className="group">
-                <label
-                  htmlFor="url"
-                  className="block text-base font-semibold mb-1"
-                >
-                  {translations[language].bookmarkForm?.urlLabel || "URL *"}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label
+                    htmlFor="url"
+                    className="block text-base font-semibold"
+                  >
+                    {translations[language].bookmarkForm?.urlLabel || "URL *"}
+                  </label>
+                  {url && (
+                    <button
+                      type="button"
+                      onClick={() => setUrl("")}
+                      className={`p-1 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                        isDarkMode
+                          ? "bg-black border-white"
+                          : "bg-white border-black"
+                      }`}
+                    >
+                      <X className="w-3 h-3 pixelated" />
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <Globe
                     className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pixelated ${
                       isDarkMode ? "text-white" : "text-black"
-                    } group-focus-within:text-purple-500`}
+                    } group-focus-within:text-blue-600`}
                   />
                   <input
                     id="url"
@@ -394,20 +416,34 @@ export default function BookmarkForm({
                 )}
               </div>
 
-              {/* Description Input */}
               <div className="group">
-                <label
-                  htmlFor="description"
-                  className="block text-base font-semibold mb-1"
-                >
-                  {translations[language].bookmarkForm?.descriptionLabel ||
-                    "Mô tả"}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label
+                    htmlFor="description"
+                    className="block text-base font-semibold"
+                  >
+                    {translations[language].bookmarkForm?.descriptionLabel ||
+                      "Mô tả"}
+                  </label>
+                  {description && (
+                    <button
+                      type="button"
+                      onClick={() => setDescription("")}
+                      className={`p-1 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                        isDarkMode
+                          ? "bg-black border-white"
+                          : "bg-white border-black"
+                      }`}
+                    >
+                      <X className="w-3 h-3 pixelated" />
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <FileText
                     className={`absolute left-3 top-3 w-4 h-4 pixelated ${
                       isDarkMode ? "text-white" : "text-black"
-                    } group-focus-within:text-purple-500`}
+                    } group-focus-within:text-blue-600`}
                   />
                   <textarea
                     id="description"
@@ -436,20 +472,34 @@ export default function BookmarkForm({
                 </div>
               </div>
 
-              {/* Folder Input */}
               <div className="group">
-                <label
-                  htmlFor="folder"
-                  className="block text-base font-semibold mb-1"
-                >
-                  {translations[language].bookmarkForm?.folderLabel ||
-                    "Thư mục"}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label
+                    htmlFor="folder"
+                    className="block text-base font-semibold"
+                  >
+                    {translations[language].bookmarkForm?.folderLabel ||
+                      "Thư mục"}
+                  </label>
+                  {folderId && (
+                    <button
+                      type="button"
+                      onClick={() => setFolderId("")}
+                      className={`p-1 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                        isDarkMode
+                          ? "bg-black border-white"
+                          : "bg-white border-black"
+                      }`}
+                    >
+                      <X className="w-3 h-3 pixelated" />
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <Folder
                     className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pixelated ${
                       isDarkMode ? "text-white" : "text-black"
-                    } group-focus-within:text-purple-500`}
+                    } group-focus-within:text-blue-600`}
                   />
                   <select
                     id="folder"
@@ -479,19 +529,33 @@ export default function BookmarkForm({
                 </div>
               </div>
 
-              {/* Tags Input */}
               <div className="group">
-                <label
-                  htmlFor="tags"
-                  className="block text-base font-semibold mb-1"
-                >
-                  {translations[language].bookmarkForm?.tagsLabel || "Tags"}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label
+                    htmlFor="tags"
+                    className="block text-base font-semibold"
+                  >
+                    {translations[language].bookmarkForm?.tagsLabel || "Tags"}
+                  </label>
+                  {tags.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setTags([])}
+                      className={`p-1 border-2 hover:scale-110 transition-all duration-200 steps-4 ${
+                        isDarkMode
+                          ? "bg-black border-white"
+                          : "bg-white border-black"
+                      }`}
+                    >
+                      <X className="w-3 h-3 pixelated" />
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <Link
                     className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pixelated ${
                       isDarkMode ? "text-white" : "text-black"
-                    } group-focus-within:text-purple-500`}
+                    } group-focus-within:text-blue-600`}
                   />
                   <input
                     id="tags"
@@ -582,7 +646,6 @@ export default function BookmarkForm({
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
@@ -595,6 +658,20 @@ export default function BookmarkForm({
                   disabled={isLoading}
                 >
                   {translations[language].bookmarkForm?.cancel || "Hủy"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className={`flex-1 py-2 px-4 border-2 hover:scale-105 transition-all duration-200 steps-4 font-semibold text-base flex items-center justify-center gap-2 ${
+                    isDarkMode
+                      ? "bg-black text-white border-white"
+                      : "bg-white text-black border-black"
+                  } ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
+                  disabled={isLoading}
+                >
+                  <Trash className="w-4 h-4 pixelated" />
+                  {translations[language].clearAll || "Xóa hết"}
                 </button>
 
                 <button
@@ -626,7 +703,7 @@ export default function BookmarkForm({
                   ) : (
                     <>
                       <Plus className="w-4 h-4 pixelated" />
-                      {translations[language].bookmarkForm?.addBookmark ||
+                      {translations[language].bookmarkForm?.addBookmarkShort ||
                         "Thêm Bookmark"}
                     </>
                   )}
@@ -634,10 +711,9 @@ export default function BookmarkForm({
               </div>
             </form>
 
-            {/* Progress indicator */}
             <div className="mt-4 h-1.5 border-2 overflow-hidden">
               <div
-                className={`h-full bg-purple-500 transition-all duration-200 steps-4`}
+                className={`h-full bg-green-600 transition-all duration-200 steps-4`}
                 style={{
                   width: `${
                     title
