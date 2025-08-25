@@ -9,6 +9,8 @@ module.exports = {
       "images.unsplash.com",
       "lh3.googleusercontent.com",
       "encrypted-tbn0.gstatic.com",
+      "www.google.com",
+      "icons.duckduckgo.com",
     ],
   },
 }

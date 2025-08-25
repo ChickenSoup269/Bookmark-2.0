@@ -58,6 +58,24 @@ export default function BookmarkForm({
     "khác",
   ]
 
+  const validateUrl = (url: string) => {
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const getFaviconUrl = (url: string) => {
+    try {
+      const domain = new URL(url).hostname
+      return `https://icons.duckduckgo.com/ip3/${domain}.ico`
+    } catch {
+      return "/images/default-favicon.png" // Favicon mặc định nếu URL không hợp lệ
+    }
+  }
+
   const handleSubmit = async () => {
     if (!title.trim() || !url.trim() || !validateUrl(url)) {
       setError(
@@ -79,6 +97,10 @@ export default function BookmarkForm({
     setError(null)
 
     try {
+      // Lấy favicon URL
+      const faviconUrl = getFaviconUrl(url)
+
+      // Thêm bookmark vào Firebase
       await addDoc(collection(db, `users/${auth.currentUser.uid}/bookmarks`), {
         title,
         url,
@@ -87,8 +109,10 @@ export default function BookmarkForm({
         tags,
         createdAt: new Date(),
         favorite: false,
+        favicon: faviconUrl, // Thêm favicon vào bookmark
       })
 
+      // Reset form
       setTitle("")
       setUrl("")
       setDescription("")
@@ -115,15 +139,6 @@ export default function BookmarkForm({
       )
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const validateUrl = (url: string) => {
-    try {
-      new URL(url)
-      return true
-    } catch {
-      return false
     }
   }
 

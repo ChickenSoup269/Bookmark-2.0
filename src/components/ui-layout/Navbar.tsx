@@ -141,7 +141,7 @@ const MobileMenu = ({
   language,
   bookmarkCount,
   setIsMenuOpen,
-  handleLogout,
+  handleOpenLogoutConfirm,
   toggleLanguage,
   pathname,
 }: {
@@ -150,7 +150,7 @@ const MobileMenu = ({
   language: keyof typeof translations
   bookmarkCount: number
   setIsMenuOpen: (value: boolean) => void
-  handleLogout: () => void
+  handleOpenLogoutConfirm: () => void
   toggleLanguage: () => void
   pathname: string
 }) => (
@@ -292,7 +292,7 @@ const MobileMenu = ({
             />
             <button
               onClick={() => {
-                handleLogout()
+                handleOpenLogoutConfirm()
                 setIsMenuOpen(false)
               }}
               className={`w-full flex items-center justify-center gap-2 p-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
@@ -404,6 +404,67 @@ const LanguageToggle = ({
   </button>
 )
 
+const LogoutConfirmDialog = ({
+  isDarkMode,
+  language,
+  font,
+  onConfirm,
+  onCancel,
+}: {
+  isDarkMode: boolean
+  language: keyof typeof translations
+  font: string
+  onConfirm: () => void
+  onCancel: () => void
+}) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className={`absolute inset-0 ${
+        isDarkMode ? "bg-white/50" : "bg-black/50"
+      }`}
+      onClick={onCancel}
+    />
+    <div
+      className={`relative p-6 border-2 shadow-[8px_8px_0_0] animate-in zoom-in-50 duration-200 steps-4 ${
+        font === "gohu" ? "font-gohu" : "font-normal"
+      } ${
+        isDarkMode
+          ? "bg-black text-white border-white shadow-white"
+          : "bg-white text-black border-black shadow-black"
+      }`}
+    >
+      <h3 className="text-lg font-bold mb-4">
+        {translations[language].logoutConfirm ||
+          "Are you sure you want to log out?"}
+      </h3>
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={onCancel}
+          className={`px-4 py-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+            isDarkMode
+              ? "bg-black text-white border-white"
+              : "bg-white text-black border-black"
+          }`}
+          aria-label="Cancel logout"
+        >
+          {translations[language].no || "No"}
+        </button>
+        <button
+          onClick={onConfirm}
+          className={`px-4 py-2 border-2 rounded-none transition-all duration-200 steps-4 hover:scale-105 ${
+            isDarkMode
+              ? "bg-white text-black border-white"
+              : "bg-black text-white border-black"
+          }`}
+          aria-label="Confirm logout"
+        >
+          {translations[language].yes || "Yes"}
+        </button>
+      </div>
+    </div>
+  </div>
+)
+
 export default function Navbar() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
@@ -413,6 +474,7 @@ export default function Navbar() {
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
   const [isChatbotVisible, setIsChatbotVisible] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState<boolean>(false)
 
   const { isDarkMode, toggleDarkMode } = useTheme()
   const { font, toggleFont } = useFont()
@@ -433,7 +495,6 @@ export default function Navbar() {
         setUser(currentUser)
         setIsMenuOpen(false)
         if (currentUser) {
-          // Load states from localStorage for logged-in user
           const savedChatbotVisible = localStorage.getItem("isChatbotVisible")
           if (savedChatbotVisible) {
             const parsedValue = JSON.parse(savedChatbotVisible)
@@ -443,7 +504,6 @@ export default function Navbar() {
             )
           }
         } else {
-          // Set default states for non-logged-in user
           setIsChatbotVisible(false)
           console.log(
             "Navbar: Chatbot visibility set to default: false (not logged in)"
@@ -513,16 +573,36 @@ export default function Navbar() {
       await signOut(auth)
       setIsMenuOpen(false)
       setIsChatbotVisible(false)
-      // Clear all states from localStorage
       localStorage.removeItem("isChatbotVisible")
       localStorage.removeItem("font")
       localStorage.removeItem("language")
       localStorage.removeItem("isDarkMode")
       localStorage.removeItem("isCursorEnabled")
       console.log("Navbar: Logged out successfully, cleared localStorage")
+      console.log(
+        `Navbar: ${
+          translations[language].logoutSuccess || "Logged out successfully"
+        }`
+      )
     } catch (error) {
       console.error("Navbar: Error signing out:", error)
     }
+  }
+
+  const handleOpenLogoutConfirm = () => {
+    console.log("Navbar: Opening logout confirmation dialog")
+    setIsLogoutConfirmOpen(true)
+  }
+
+  const handleCloseLogoutConfirm = () => {
+    console.log("Navbar: Closing logout confirmation dialog")
+    setIsLogoutConfirmOpen(false)
+  }
+
+  const handleConfirmLogout = async () => {
+    console.log("Navbar: Logout confirmed")
+    setIsLogoutConfirmOpen(false)
+    await handleLogout()
   }
 
   const toggleChatbot = () => {
@@ -590,7 +670,7 @@ export default function Navbar() {
                     folderCount={folderCount}
                     toggleFont={toggleFont}
                     toggleLanguage={toggleLanguage}
-                    handleLogout={handleLogout}
+                    handleLogout={handleOpenLogoutConfirm}
                     font={font}
                     isCursorEnabled={isCursorEnabled}
                     toggleCursor={toggleCursor}
@@ -651,9 +731,18 @@ export default function Navbar() {
           language={language}
           bookmarkCount={bookmarkCount}
           setIsMenuOpen={setIsMenuOpen}
-          handleLogout={handleLogout}
+          handleOpenLogoutConfirm={handleOpenLogoutConfirm}
           toggleLanguage={toggleLanguage}
           pathname={pathname}
+        />
+      )}
+      {isLogoutConfirmOpen && (
+        <LogoutConfirmDialog
+          isDarkMode={isDarkMode}
+          language={language}
+          font={font}
+          onConfirm={handleConfirmLogout}
+          onCancel={handleCloseLogoutConfirm}
         />
       )}
       <ScrollToTop

@@ -27,13 +27,13 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import BookmarkForm from "@/components/ui-controls/add"
 import DeleteFolder from "@/components/ui-controls/DeleteFolder"
 import { useTheme } from "@/lib/controls-setting-change/theme-provider"
 import { useLanguage } from "@/lib/controls-setting-change/changeLanguage"
 import { useFont } from "@/lib/controls-setting-change/changeTextFont"
-import { useCursor } from "@/lib/CursorContext"
 import { translations } from "@/lib/translations"
 import CursorEffect from "@/components/ui-effects/CursorEffect"
 
@@ -46,6 +46,7 @@ type Bookmark = {
   tags?: string[]
   createdAt?: { toMillis: () => number }
   favorite?: boolean
+  favicon?: string
   [key: string]: unknown
 }
 
@@ -57,21 +58,21 @@ type Folder = {
 
 // Bảng màu preset
 const colorPalette = [
-  "#EF4444", // Đỏ
-  "#F97316", // Cam
-  "#FACC15", // Vàng
-  "#22C55E", // Xanh lá
-  "#3B82F6", // Xanh dương
-  "#8B5CF6", // Tím
-  "#3B82F6", // Xanh dương (thay thế màu hồng)
-  "#6B7280", // Xám (mặc định)
+  "#EF4444", // Đỏ tươi
+  "#F97316", // Cam sáng
+  "#FACC15", // Vàng tươi
+  "#22C55E", // Xanh lá sáng
+  "#3B82F6", // Xanh dương sáng
+  "#8B5CF6", // Tím sáng
+  "#EC4899", // Hồng tươi
+  "#14B8A6", // Ngọc/Teal
+  "#6B7280", // Xám trung tính
 ]
 
 export default function BookmarkManager() {
   const { isDarkMode } = useTheme()
   const { language } = useLanguage()
   const { font } = useFont()
-  const { isCursorEnabled, toggleCursor } = useCursor()
   const router = useRouter()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
@@ -90,10 +91,6 @@ export default function BookmarkManager() {
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
-
-  // Giả lập dữ liệu bookmarkCount và folderCount
-  const bookmarkCount = bookmarks.length
-  const folderCount = folders.length
 
   // Kiểm tra trạng thái đăng nhập
   useEffect(() => {
@@ -322,6 +319,18 @@ export default function BookmarkManager() {
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
+                {bookmark.favicon && (
+                  <Image
+                    width={40}
+                    height={40}
+                    src={bookmark.favicon}
+                    alt={`${bookmark.title} favicon`}
+                    className="w-6 h-6"
+                    onError={(e) =>
+                      (e.currentTarget.src = "/images/default-favicon.png")
+                    } // Fallback nếu favicon không tải được
+                  />
+                )}
                 {bookmark.favorite && (
                   <Star className="w-4 h-4 text-yellow-500 fill-current pixelated" />
                 )}
@@ -451,6 +460,18 @@ export default function BookmarkManager() {
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
+              {bookmark.favicon && (
+                <Image
+                  width={40}
+                  height={40}
+                  src={bookmark.favicon}
+                  alt={`${bookmark.title} favicon`}
+                  className="w-6 h-6 pixelated"
+                  onError={(e) =>
+                    (e.currentTarget.src = "/images/default-favicon.png")
+                  }
+                />
+              )}
               {bookmark.favorite && (
                 <Star className="w-4 h-4 text-yellow-500 fill-current pixelated" />
               )}
@@ -494,7 +515,7 @@ export default function BookmarkManager() {
                 isDarkMode ? "bg-black border-white" : "bg-white border-black"
               }`}
             >
-              <ExternalLink className="w-4 h-4 pixelated" />
+              <ExternalLink className="w-4 h-4" />
             </a>
             <button
               onClick={() => toggleFavorite(bookmark.id)}
